@@ -241,7 +241,7 @@
     .range {
         border: 1px solid #e6e6e6;
         /*border-radius: 5px;*/
-        margin: 10px;
+        margin:  10px 10px 0 10px;
         padding: 10px;
     }
 

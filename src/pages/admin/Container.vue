@@ -1,8 +1,22 @@
 <template>
     <full-screen>
         <el-container style="width: 100%;height: 100%">
-            <el-header class="header">
+            <el-header class="header between">
                 <div class="title"><i class="el-icon-cold-drink"></i>SuperCrud</div>
+                <div class="toolbar">
+<!--                    全屏-->
+                    <i class="el-icon-full-screen"></i>
+<!--                    日志-->
+                    <i class="el-icon-tickets"></i>
+                    <el-dropdown style="cursor: pointer">
+                        <div>
+                            你好， Admin<i class="el-icon-arrow-down el-icon--right"></i>
+                        </div>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item>退出登录</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
             </el-header>
             <el-container>
                 <el-aside width="200px" class="aside" style="border-right: solid 1px #e6e6e6;">
@@ -64,18 +78,30 @@
 </script>
 
 <style scoped>
-    .header{
+    .header {
         border-bottom: 1px solid #e6e6e6;
     }
 
-    .header .title{
-        float: left;
+    .header .title {
         padding: 10px;
         font-weight: bold;
         font-size: 20px;
     }
 
-    .main{
+    .header .toolbar {
+        padding: 10px;
+    }
+
+    .header .toolbar i{
+        cursor: pointer;
+        padding: 0 10px;
+        font-weight: bold;
+    }
+
+
+
+    .main {
         padding: 0;
+
     }
 </style>
