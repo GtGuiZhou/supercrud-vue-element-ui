@@ -33,15 +33,17 @@ service.interceptors.response.use(function (response) {
 }, function (error) {
     window.console.error("--------------------------- request error ---------------------------")
     window.console.error(error)
-    if (error.response.status === 500) {
-        service.errMsg("服务器内部错误")
-        return Promise.reject(error);
-    }
-
-    service.errMsg(error.response.data.msg)// 对响应错误做点什么
-    if (error.response.status === 401) {
-        service.err401()
-        return Promise.reject(error);
+    const status = error.response.status
+    switch (status) {
+        case 500:
+            service.errMsg("服务器内部错误")
+            break;
+        case 401:
+            service.err401()
+            break
+        case 404:
+            service.errMsg('请求资源不存在')
+            break
     }
 
     return Promise.reject(error);

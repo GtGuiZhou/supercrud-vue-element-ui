@@ -1,21 +1,29 @@
 <template>
-    <div v-loading="loadingData" class="container">
+    <div class="container">
         <div class="range between">
             <div>
                 <el-button plain icon="el-icon-refresh" @click="refresh"></el-button>
-                <el-button type="primary" plain @click="insertRow" v-if="isAuth('insert')">新增</el-button>
-                <el-button type="danger" plain @click="deleteSelection" :disabled="selection.length < 1" v-if="isAuth('delete')">删除选中
+                <el-button type="primary" plain @click="insertRow" v-if="isAuth('insert')" icon="el-icon-circle-plus">
+                    新增
+                </el-button>
+                <el-button type="danger" plain @click="deleteSelection" :disabled="selection.length < 1"
+                           icon="el-icon-delete-solid"
+                           v-if="isAuth('delete')">删除选中
                 </el-button>
             </div>
             <div>
                 <el-input style="width: 300px" v-model="searchContent" placeholder="请输入搜索内容"></el-input>
-                <el-button type="success" plain>搜索</el-button>
-                <el-button type="warning" plain>筛选</el-button>
+                <el-button type="success" plain icon="el-icon-search">搜索</el-button>
+                <el-button type="warning" plain icon="el-icon-s-operation">筛选</el-button>
             </div>
         </div>
 
-        <div class="range table">
-            <el-table ref="singleTable" :data="tableData" border highlight-current-row style="width: 100%" >
+        <div class="range">
+            <el-table
+                    v-loading="loadingData"
+                    @selection-change="onSelectionChange"
+                    height="500"
+                    ref="singleTable" :data="tableData" border highlight-current-row style="width: 100%">
                 <el-table-column
                         v-if="tableConfig.selection"
                         type="selection"
@@ -25,7 +33,8 @@
                 <template v-for="field in fields">
                     <slot :name="'table-col-' + field.name">
                         <el-table-column
-                                v-if="!isHideField(field.name)"
+                                :width="field.width"
+                                v-if="isHideField(field.name)"
                                 :key="field.name"
                                 :prop="field.name"
                                 :label="field.comment?field.comment:field.name">
@@ -33,10 +42,14 @@
                     </slot>
                 </template>
 
-                <el-table-column label="操作" width="200" v-if="tableConfig.actionColumn">
+                <el-table-column label="操作" width="180" v-if="tableConfig.actionColumn">
                     <template slot-scope="scope">
-                        <el-button type="warning" plain @click="editRow(scope.row)" v-if="isAuth('edit')">编辑</el-button>
-                        <el-button type="danger" plain @click="deleteRow([scope.row])" v-if="isAuth('delete')">删除</el-button>
+                        <el-button type="warning" plain @click="editRow(scope.row)" v-if="isAuth('edit')"
+                                   icon="el-icon-edit" size="mini">编辑
+                        </el-button>
+                        <el-button type="danger" plain @click="deleteRow(scope.row)" v-if="isAuth('delete')"
+                                   icon="el-icon-delete" size="mini">删除
+                        </el-button>
                     </template>
                 </el-table-column>
 
@@ -54,13 +67,19 @@
             </el-pagination>
         </div>
 
+        <el-dialog :modal="false" :title="formTitle" :visible.sync="visualForm">
+            <crud-form :submit="formSubmit" :form-config="formConfig" :form-data="formData" :url="formUrl" :fields="fields" @submit-success="refresh"></crud-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     // import Field from "./fields/field";
+    import CrudForm from "./CrudForm";
+
     export default {
         name: "CrudIndex",
+        components: {CrudForm},
         // components: {Field},
         props: {
             insertForm: {
@@ -82,21 +101,25 @@
         computed: {
             tableConfig() {
                 let _default = {
+                    pk: 'id',
                     selection: true,
                     actionColumn: true,
-                    auth: ['insert','delete','edit'],
+                    auth: ['insert', 'delete', 'edit'],
                     hideFields: [],
                     baseUrl: '',
                     getUrl: '',
                     insertUrl: '',
                     editUrl: '',
-                    deleteUrl:''
+                    deleteUrl: ''
                 }
                 for (let key in this.table) {
                     _default[key] = this.table[key]
                 }
                 return _default
             },
+            primaryFieldName () {
+               return this.tableConfig.pk
+            } ,
             baseUrl() {
                 return this.tableConfig.baseUrl
             },
@@ -106,30 +129,37 @@
             insertUrl() {
                 return this.baseUrl + this.tableConfig.insertUrl
             },
-            editUrl(){
+            editUrl() {
                 return this.baseUrl + this.tableConfig.editUrl
             },
-            deleteUrl(){
-                return this.baseUrl + this.tableConfig.deleteUrl
+            deleteUrl() {
+                return this.baseUrl + this.tableConfig.deleteUrl + '/' + this.deleteRowIds
             }
         },
         data() {
             return {
-                tableData: [
-                    {date: '2019/12/15 16:49:51', name: '郭涛', address: '贵州 毕节'},
-                    {date: '2019/12/15 16:49:51', name: '郭涛', address: '贵州 毕节'},
-                    {date: '2019/12/15 16:49:51', name: '郭涛', address: '贵州 毕节'},
-                ],
+                tableData: [],
                 selection: [],
                 searchContent: '',
                 pagingIndex: 1,
                 pagingSize: 10,
                 pagingTotal: 0,
-                loadingData: false
+                loadingData: false,
+                deleteRowIds: '',
+                visualForm: false,
+                formTitle: '',
+                formUrl: '',
+                formData: {},
+                formConfig: {},
+                formSubmit: null
             }
         },
+        mounted() {
+            this.refresh()
+        },
         methods: {
-             async refresh() {
+            // 刷新数据
+            async refresh() {
                 this.loadingData = true
                 try {
                     const res = await this.$http.get(this.getUrl)
@@ -140,35 +170,67 @@
                     this.loadingData = false
                 }
             },
+            // 新增一行数据
             insertRow() {
+                this.formTitle = '新增'
+                this.formUrl = this.insertUrl
+                this.formConfig = this.insertForm
+                this.formSubmit = formData => {
+                    return this.$http.post(this.insertUrl,formData)
+                }
+                this.visualForm = true
+                let row = {}
+                // 构造表单数据
+                this.fields.forEach(field => {
+                    // 填入默认值
+                    row[field.name] = 'default' in field ? field.default : ''
+                })
+                this.formData = row
+            },
 
-            },
-            deleteRow(row) {
-                return row
-            },
+            // 编辑指定行数据
             editRow(row) {
-                return row
+                this.formConfig = this.editForm
+                this.formData = JSON.parse(JSON.stringify(row))
+                this.formSubmit = formData => {
+                    return this.$http.put(this.editUrl + '/' + this.formData[this.primaryFieldName],formData)
+                }
+                this.visualForm = true
             },
-            deleteSelection() {
 
+            // 删除指定行
+            deleteRow(row) {
+                this.deleteRowIds = row[this.primaryFieldName]
+                return this.$http.delete(this.deleteUrl)
             },
-            setPagingIndex(index){
+            // 删除选中行
+            deleteSelection() {
+                this.deleteRowIds = this.selection.map(item => item[this.primaryFieldName]).join(',')
+                return this.$http.delete(this.deleteUrl)
+            },
+            // 设置当前数据分页
+            setPagingIndex(index) {
                 this.pagingIndex = index
                 this.refresh()
             },
-            setPagingSize(size){
+            // 设置分页数据大小
+            setPagingSize(size) {
                 this.pagingSize = size
                 this.refresh()
+            },
+            // 选中行改变
+            onSelectionChange(selection) {
+                this.selection = selection
             },
 
             // 组件方法
             isHideField(fieldName) {
-                return this.tableConfig.hideFields.some(item => {
+                return !this.tableConfig.hideFields.some(item => {
                     return item === fieldName
                 })
             },
             // 其他
-            isAuth(authName){
+            isAuth(authName) {
                 return this.tableConfig.auth.some(item => authName === item)
             }
         }
@@ -179,16 +241,12 @@
     .range {
         border: 1px solid #e6e6e6;
         /*border-radius: 5px;*/
-        margin: 10px ;
+        margin: 10px;
         padding: 10px;
     }
 
-    .table{
-        overflow: auto;
-        height: 500px;
-    }
 
-    .container{
+    .container {
         display: flex;
         flex-direction: column;
         /*flex-wrap: wrap;*/

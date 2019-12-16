@@ -7,6 +7,7 @@ Mock.mock(/\/crud\/page\/\d+\/size\/\d+/,'get',{
     "data" : {
         "total|1-1000": 100,
         "data|10": [{
+            "id|1-1000": 100,
             name: '@cname',
             address: '@county(true)',
             date: '@date("yyyy-MM-dd h:i:s")'

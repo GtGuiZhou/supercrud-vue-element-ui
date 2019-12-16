@@ -1,5 +1,5 @@
 import DateTimeColumn from "./DateTimeField";
-import TextColumn from "./TexField";
+import TextColumn from "./TextField";
 import fieldProps from './fieldProps'
 
 export default {
@@ -24,7 +24,8 @@ export default {
         return createElement(component, {
             props: {
                 index: this.index,
-                field: this.field
+                field: this.field,
+                formData: this.formData
             }
         }, this.$slots.default)
     }
