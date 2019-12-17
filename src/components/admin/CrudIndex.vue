@@ -20,11 +20,13 @@
 
         <div class="range">
             <el-table
+                    @sort-change="sortChange"
                     v-loading="loadingData"
                     @selection-change="onSelectionChange"
                     height="500"
                     ref="singleTable" :data="tableData" border highlight-current-row style="width: 100%">
                 <el-table-column
+
                         v-if="tableConfig.selection"
                         type="selection"
                         width="55">
@@ -33,11 +35,15 @@
                 <template v-for="field in fields">
                     <slot :name="'table-col-' + field.name">
                         <el-table-column
+                                sortable="custom"
+                                :formatter="field.formatter"
                                 :width="field.width"
                                 v-if="isHideField(field.name)"
                                 :key="field.name"
                                 :prop="field.name"
-                                :label="field.comment?field.comment:field.name">
+                                :label="field.comment?field.comment:field.name"
+
+                        >
                         </el-table-column>
                     </slot>
                 </template>
@@ -67,8 +73,13 @@
             </el-pagination>
         </div>
 
-        <el-dialog :modal="false" :title="formTitle" :visible.sync="visualForm">
+        <el-dialog :modal="false"  :visible.sync="visualForm">
+            <div slot="title" style="border-bottom: 1px solid #e6e6e6;padding-bottom: 10px"><i  class="el-icon-document"/>{{formTitle}}</div>
             <crud-form :submit="formSubmit" :form-config="formConfig" :form-data="formData" :url="formUrl" :fields="fields" @submit-success="refresh"></crud-form>
+            <div slot="footer" class="form-footer">
+<!--                这里用云的动漫图-->
+                <img src="../../assets/form_footer.jpg">
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -151,7 +162,9 @@
                 formUrl: '',
                 formData: {},
                 formConfig: {},
-                formSubmit: null
+                formSubmit: null,
+                order: {},
+                where: {}
             }
         },
         mounted() {
@@ -190,6 +203,7 @@
 
             // 编辑指定行数据
             editRow(row) {
+                this.formTitle = '编辑'
                 this.formConfig = this.editForm
                 this.formData = JSON.parse(JSON.stringify(row))
                 this.formSubmit = formData => {
@@ -222,6 +236,11 @@
             onSelectionChange(selection) {
                 this.selection = selection
             },
+            // 排序改变
+            sortChange(column,prop,order){
+                order = order === 'descending' ? 'desc' : 'asc'
+                this.order[prop] = order
+            },
 
             // 组件方法
             isHideField(fieldName) {
@@ -252,4 +271,15 @@
         /*flex-wrap: wrap;*/
     }
 
+    .form-footer{
+        position: relative;
+    }
+
+    .form-footer img{
+        position: absolute;
+        height: 50px;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+    }
 </style>

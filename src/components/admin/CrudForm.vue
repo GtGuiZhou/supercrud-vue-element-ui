@@ -9,7 +9,7 @@
             </el-form-item>
         </template>
         <el-form-item>
-            <el-button v-loading="submitLoading" type="primary" @click="onSubmit">提交</el-button>
+            <el-button v-loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交</el-button>
         </el-form-item>
     </el-form>
 </template>
@@ -75,5 +75,7 @@
 </script>
 
 <style scoped>
-
+    .range {
+        border: 1px solid #e6e6e6;
+    }
 </style>
