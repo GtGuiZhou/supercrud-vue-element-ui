@@ -1,15 +1,17 @@
 <template>
-    <el-form ref="form" :label-width="getConfig('labelWidth','80px')">
+    <el-form ref="form" :model="formData" :rules="rules" :label-width="getConfig('labelWidth','80px')">
         <template v-for="field in fields">
             <el-form-item
                     v-if="isHideField(field.name)"
+                    :prop="field.name"
                     :key="field.name"
                     :label="field.comment?field.comment:field.name">
                 <field :form-data="formData" :field="field"></field>
             </el-form-item>
         </template>
         <el-form-item>
-            <el-button v-loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交</el-button>
+            <el-button v-loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交
+            </el-button>
         </el-form-item>
     </el-form>
 </template>
@@ -31,8 +33,8 @@
             },
             formConfig: {
                 type: Object,
-                default:() => ({})
-                },
+                default: () => ({})
+            },
             fields: {
                 type: Array,
                 default: () => []
@@ -43,31 +45,53 @@
                 submitLoading: false
             }
         },
+        computed: {
+          rules () {
+              let rules = {}
+              this.fields.forEach(({name}) => {
+                  let valid = this.getConfig('validate',false)
+                  if (!(name in rules)){
+                      rules[name] = []
+                  }
+                  if (valid){
+                      rules[name].push(valid)
+                  }
+              })
+              return rules
+          }
+        },
         methods: {
-            async onSubmit(){
-                this.submitLoading = true
-                try {
-                    await this.submit(this.formData)
-                    this.$emit('submit-success')
-                } catch(e) {
-                    this.$emit('submit-fail')
-                } finally {
-                    this.submitLoading = false
-                }
+            onSubmit() {
+                this.$refs.form.validate(async valid => {
+                    if (valid) {
+                        // 验证成功
+                        this.submitLoading = true
+                        try {
+                            await this.submit(this.formData)
+                            this.$emit('submit-success')
+                        } catch (e) {
+                            this.$emit('submit-fail')
+                        } finally {
+                            this.submitLoading = false
+                        }
+                    } else{
+                        return  false
+                    }
+                })
             },
             // 组件方法
             isHideField(fieldName) {
-                const hideFields = this.getConfig('hideFields',[])
+                const hideFields = this.getConfig('hideFields', [])
                 return !hideFields.some(item => {
                     return item === fieldName
                 })
             },
             // 其他
-            getConfig(configName,_default){
-                if (configName in this.formConfig){
+            getConfig(configName, _default) {
+                if (configName in this.formConfig) {
                     return this.formConfig[configName]
                 } else {
-                    return  _default
+                    return _default
                 }
             }
         }

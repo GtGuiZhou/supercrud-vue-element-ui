@@ -1,6 +1,2 @@
-const warpPromise = promise => {
-    return new Promise((resolve, reject) => {
-
-    })
-}
+import moment from 'moment'
 export default {}

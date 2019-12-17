@@ -1,5 +1,9 @@
 <template>
-    <el-input v-model="formData[field.name]" placeholder="请输入内容"></el-input>
+    <el-date-picker
+            v-model="formData[field.name]"
+            type="datetime"
+            placeholder="选择日期时间">
+    </el-date-picker>
 </template>
 
 <script>

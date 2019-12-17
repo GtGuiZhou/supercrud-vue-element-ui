@@ -9,8 +9,9 @@ Mock.mock(/\/crud\/page\/\d+\/size\/\d+/,'get',{
         "data|10": [{
             "id|1-1000": 100,
             name: '@cname',
+            avatar: '@cname',
             address: '@county(true)',
-            date: '@date("yyyy-MM-dd h:i:s")'
+            date: '@date("yyyy-MM-dd h:m:s")'
         }]
     },
 })

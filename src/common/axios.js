@@ -50,10 +50,8 @@ service.interceptors.response.use(function (response) {
 });
 
 
-service.upload = (url, file) => {
-    let formData = new FormData();
-    formData.append('file', file)
-    return service.post(url, formData)
+service.uploads = (form) => {
+    return service.post('/api/uploads', form)
 }
 
 

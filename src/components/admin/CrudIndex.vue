@@ -1,20 +1,27 @@
 <template>
     <div class="container">
-        <div class="range between">
-            <div>
-                <el-button plain icon="el-icon-refresh" @click="refresh"></el-button>
-                <el-button type="primary" plain @click="insertRow" v-if="isAuth('insert')" icon="el-icon-circle-plus">
-                    新增
-                </el-button>
-                <el-button type="danger" plain @click="deleteSelection" :disabled="selection.length < 1"
-                           icon="el-icon-delete-solid"
-                           v-if="isAuth('delete')">删除选中
-                </el-button>
-            </div>
-            <div>
-                <el-input style="width: 300px" v-model="searchContent" placeholder="请输入搜索内容"></el-input>
-                <el-button type="success" plain icon="el-icon-search">搜索</el-button>
-                <el-button type="warning" plain icon="el-icon-s-operation">筛选</el-button>
+        <div class="range" v-if="visualFilter">
+                <crud-filter :filter-config="filter"  :filter-form="filterForm" :fields="fields" @query="queryFilter"></crud-filter>
+        </div>
+
+        <div class="range">
+            <div class="between" style="flex-wrap: wrap;">
+                <div>
+                    <el-button plain icon="el-icon-refresh" @click="refresh"></el-button>
+                    <el-button type="primary" plain @click="insertRow" v-if="isAuth('insert')"
+                               icon="el-icon-circle-plus">
+                        新增
+                    </el-button>
+                    <el-button type="danger" plain @click="deleteSelection" :disabled="selection.length < 1"
+                               icon="el-icon-delete-solid"
+                               v-if="isAuth('delete')">删除选中
+                    </el-button>
+                </div>
+                <div>
+                    <el-input style="width: 300px" v-model="searchContent" placeholder="请输入搜索内容"></el-input>
+                    <el-button type="success" plain icon="el-icon-search">搜索</el-button>
+                    <el-button type="warning" plain icon="el-icon-s-operation" @click="toggleFilter">筛选</el-button>
+                </div>
             </div>
         </div>
 
@@ -73,11 +80,14 @@
             </el-pagination>
         </div>
 
-        <el-dialog :modal="false"  :visible.sync="visualForm">
-            <div slot="title" style="border-bottom: 1px solid #e6e6e6;padding-bottom: 10px"><i  class="el-icon-document"/>{{formTitle}}</div>
-            <crud-form :submit="formSubmit" :form-config="formConfig" :form-data="formData" :url="formUrl" :fields="fields" @submit-success="refresh"></crud-form>
+        <el-dialog :modal="false" :visible.sync="visualForm">
+            <div slot="title" style="border-bottom: 1px solid #e6e6e6;padding-bottom: 10px"><i
+                    class="el-icon-document"/>{{formTitle}}
+            </div>
+            <crud-form :submit="formSubmit" :form-config="formConfig" :form-data="formData" :url="formUrl"
+                       :fields="fields" @submit-success="refresh"></crud-form>
             <div slot="footer" class="form-footer">
-<!--                这里用云的动漫图-->
+                <!--                这里用云的动漫图-->
                 <img src="../../assets/form_footer.jpg">
             </div>
         </el-dialog>
@@ -87,10 +97,11 @@
 <script>
     // import Field from "./fields/field";
     import CrudForm from "./CrudForm";
+    import CrudFilter from "./CrudFilter";
 
     export default {
         name: "CrudIndex",
-        components: {CrudForm},
+        components: {CrudFilter, CrudForm},
         // components: {Field},
         props: {
             insertForm: {
@@ -98,6 +109,10 @@
                 default: () => ({})
             },
             editForm: {
+                type: Object,
+                default: () => ({})
+            },
+            filter: {
                 type: Object,
                 default: () => ({})
             },
@@ -128,14 +143,19 @@
                 }
                 return _default
             },
-            primaryFieldName () {
-               return this.tableConfig.pk
-            } ,
+            primaryFieldName() {
+                return this.tableConfig.pk
+            },
             baseUrl() {
                 return this.tableConfig.baseUrl
             },
             getUrl() {
+                // 排序查询
+                let sortStr = encodeURIComponent(JSON.stringify(this.sort))
+                // where查询
+                let whereStr = encodeURIComponent(JSON.stringify(this.where))
                 return this.baseUrl + this.tableConfig.getUrl + '/page/' + this.pagingIndex + '/size/' + this.pagingSize
+                    + "?sort=" + sortStr + '&where=' + whereStr
             },
             insertUrl() {
                 return this.baseUrl + this.tableConfig.insertUrl
@@ -158,13 +178,15 @@
                 loadingData: false,
                 deleteRowIds: '',
                 visualForm: false,
+                visualFilter: false,
                 formTitle: '',
                 formUrl: '',
                 formData: {},
                 formConfig: {},
                 formSubmit: null,
-                order: {},
-                where: {}
+                sort: {},
+                where: {},
+                filterForm: {}
             }
         },
         mounted() {
@@ -189,16 +211,10 @@
                 this.formUrl = this.insertUrl
                 this.formConfig = this.insertForm
                 this.formSubmit = formData => {
-                    return this.$http.post(this.insertUrl,formData)
+                    return this.$http.post(this.insertUrl, formData)
                 }
                 this.visualForm = true
-                let row = {}
-                // 构造表单数据
-                this.fields.forEach(field => {
-                    // 填入默认值
-                    row[field.name] = 'default' in field ? field.default : ''
-                })
-                this.formData = row
+                this.formData = this.generateEmptyForm()
             },
 
             // 编辑指定行数据
@@ -207,7 +223,7 @@
                 this.formConfig = this.editForm
                 this.formData = JSON.parse(JSON.stringify(row))
                 this.formSubmit = formData => {
-                    return this.$http.put(this.editUrl + '/' + this.formData[this.primaryFieldName],formData)
+                    return this.$http.put(this.editUrl + '/' + this.formData[this.primaryFieldName], formData)
                 }
                 this.visualForm = true
             },
@@ -237,9 +253,24 @@
                 this.selection = selection
             },
             // 排序改变
-            sortChange(column,prop,order){
+            sortChange(column) {
+                let {prop, order} = column
                 order = order === 'descending' ? 'desc' : 'asc'
-                this.order[prop] = order
+                this.sort[prop] = order
+            },
+            // toggle过滤模块
+            toggleFilter(){
+                this.visualFilter = !this.visualFilter
+                if (this.visualFilter){
+                    this.filterForm = this.generateEmptyForm()
+                } else {
+                    this.where = {}
+                }
+            },
+            // 执行过滤查询
+            queryFilter(where){
+                this.where = where
+                this.refresh()
             },
 
             // 组件方法
@@ -251,6 +282,15 @@
             // 其他
             isAuth(authName) {
                 return this.tableConfig.auth.some(item => authName === item)
+            },
+            generateEmptyForm(){
+                let row = {}
+                // 构造表单数据
+                this.fields.forEach(field => {
+                    // 填入默认值
+                    row[field.name] = 'default' in field ? field.default : ''
+                })
+                return row
             }
         }
     }
@@ -260,7 +300,7 @@
     .range {
         border: 1px solid #e6e6e6;
         /*border-radius: 5px;*/
-        margin:  10px 10px 0 10px;
+        margin: 10px 10px 0 10px;
         padding: 10px;
     }
 
@@ -271,11 +311,11 @@
         /*flex-wrap: wrap;*/
     }
 
-    .form-footer{
+    .form-footer {
         position: relative;
     }
 
-    .form-footer img{
+    .form-footer img {
         position: absolute;
         height: 50px;
         width: 100%;
