@@ -21,10 +21,10 @@
 
 <script>
     import FileIcon from '../../../assets/file-field-icon.png'
-    import fieldProps from './fieldProps'
+    import fieldProps from './columnProps'
 
     export default {
-        name: "FileField",
+        name: "FileColumn",
         props: {
             ...fieldProps
         },

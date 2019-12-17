@@ -3,10 +3,10 @@
 </template>
 
 <script>
-    import fieldProps from './fieldProps'
+    import fieldProps from './columnProps'
 
     export default {
-        name: "TextField",
+        name: "TextColumn",
         props: {
             ...fieldProps
         },

@@ -11,7 +11,7 @@
     import fieldComputed from './fieldComputed'
 
     export default {
-        name: "DateTimeColumn",
+        name: "DateTimeField",
         props: {
             ...fieldProps
         },

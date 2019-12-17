@@ -1,7 +1,6 @@
-import DateTimeField from "./DateTimeField";
-import TextField from "./TextField";
-import fieldProps from './fieldProps'
-import FileField from "./FileField";
+import TextColumn from "./TextColumn";
+import fieldProps from './columnProps'
+import FileColumn from "./FileColumn";
 
 export default {
     props: {
@@ -9,9 +8,8 @@ export default {
     },
     data: () => ({
         componentsMap: {
-            'text': TextField, // 这个一定不要删除，默认情况下为该组件
-            'datetime': DateTimeField,
-            'file' : FileField
+            'text': TextColumn, // 这个一定不要删除，默认情况下为该组件
+            'file' : FileColumn
         },
     }),
     render: function (createElement) {
