@@ -3,7 +3,7 @@
         <el-button icon="el-icon-upload"
                    plain type="success" @click="selectFile" v-if="visualUploadBtn" v-loading="uploadBtnLoading">点击上传
         </el-button>
-        <input hidden ref="selectFile" multiple type="file" @change="upload" />
+        <input :accept="config.accept" hidden ref="selectFile" multiple type="file" @change="upload" />
         <div>
             <viewer :images="images" style="display: flex;justify-content: left;margin: 10px 0">
                 <div v-for="url in images"
@@ -64,6 +64,7 @@
                     minNumber: 0,
                     maxSize: 0,
                     minSize: 0,
+                    accept: ''
                 }
                 for (let key in this.field) {
                     _default[key] = this.field[key]

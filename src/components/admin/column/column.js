@@ -23,9 +23,8 @@ export default {
         }
         return createElement(component, {
             props: {
-                index: this.index,
                 field: this.field,
-                formData: this.formData
+                row: this.row
             }
         }, this.$slots.default)
     }

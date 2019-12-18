@@ -1,5 +1,5 @@
 <template>
-    <el-input v-model="formData[field.name]" placeholder="请输入内容"></el-input>
+    <div>{{row[field.name]}}</div>
 </template>
 
 <script>

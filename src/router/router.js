@@ -17,7 +17,6 @@ const sortRouter = (path, name = null, component = null) => {
 
 
 export default [
-
     {
         name:'admin-app',
         component:_import('AdminApp'),
@@ -31,7 +30,8 @@ export default [
                 redirect: '/admin/welcome',
                 children: [
                     sortRouter('admin/welcome','welcome','admin/Welcome'),
-                    sortRouter('admin/crud','crud','admin/Crud')
+                    sortRouter('admin/crud','crud','admin/Crud'),
+                    sortRouter('admin/admin','crud','admin/Admin'),
                 ]
             },
         ]

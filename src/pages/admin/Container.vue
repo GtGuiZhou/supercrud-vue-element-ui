@@ -2,11 +2,12 @@
     <full-screen>
         <el-container style="width: 100%;height: 100%">
             <el-header class="header between">
-                <div class="title"><i class="el-icon-cold-drink"></i>SuperCrud</div>
+                <router-link to="/admin/welcome" class="title"><i class="el-icon-cold-drink"></i>SuperCrud</router-link>
+
                 <div class="toolbar">
-<!--                    全屏-->
-                    <i class="el-icon-full-screen"></i>
-<!--                    日志-->
+                    <!--                    全屏-->
+                    <i class="el-icon-full-screen" @click="toggleFullScreen"></i>
+                    <!--                    日志-->
                     <i class="el-icon-tickets"></i>
                     <el-dropdown style="cursor: pointer">
                         <div>
@@ -20,20 +21,20 @@
             </el-header>
             <el-container>
                 <el-aside width="200px" class="aside" style="border-right: solid 1px #e6e6e6;">
-                    <el-menu style="border: 0">
-                        <template v-for="(menu,key) in menuList">
-                            <el-submenu :index="key + ''" v-if="menu.sub_menu.length > 0" :key="key">
+                    <el-menu :default-active="$route.path" style="border: 0">
+                        <template v-for="menu in menuList">
+                            <el-submenu :index="menu.url" v-if="menu.sub_menu.length > 0" :key="key">
                                 <template slot="title">
                                     <i :class="menu.icon" v-if="menu.icon"></i>
                                     <span slot="title">{{menu.name}}</span>
                                 </template>
-                                <el-menu-item v-for="(subMenu,subKey) in menu.sub_menu" :index="key + '-' + subKey"
-                                              :key="key-subKey" @click="$router.push(subMenu.url)">
+                                <el-menu-item v-for="subMenu in menu.sub_menu" :index="subMenu.url"
+                                              :key="subMenu.url" @click="$router.push(subMenu.url)">
                                     <i :class="subMenu.icon" v-if="subMenu.icon"></i>
                                     <span slot="title">{{subMenu.name}}</span>
                                 </el-menu-item>
                             </el-submenu>
-                            <el-menu-item :index="key + ''" :key="key" v-else @click="$router.push(menu.url)">
+                            <el-menu-item :index="menu.url" :key="menu.url" v-else @click="$router.push(menu.url)">
                                 <i :class="menu.icon" v-if="menu.icon"></i>
                                 {{menu.name}}
                             </el-menu-item>
@@ -59,21 +60,38 @@
         data() {
             return {
                 menuList: [
-                    {'icon': 'el-icon-setting', 'name': '系统配置', url: '/admin/sysconfig', sub_menu: []},
                     {'icon': 'el-icon-user-solid', 'name': '管理员管理', url: '/admin/admin', sub_menu: []},
                     {'icon': 'el-icon-user', 'name': '用户管理', url: '/admin/user', sub_menu: []},
-                    {'icon': 'el-icon-document', 'name': '用户币种记录', url: '/admin/user_coin_record', sub_menu: []},
-                    {'icon': 'el-icon-postcard', 'name': '实名认证', url: '/admin/user_real_verify', sub_menu: []},
-                    {'icon': 'el-icon-s-promotion', 'name': '项目管理', url: '/admin/item', sub_menu: []},
-                    {'icon': 'el-icon-s-order', 'name': '项目订单', url: '/admin/item_order', sub_menu: []},
-                    {'icon': 'el-icon-coin', 'name': '币种管理', url: '/admin/coin', sub_menu: []},
-                    {'icon': 'el-icon-add-location', 'name': '充值管理', url: '/admin/user_invest', sub_menu: []},
-                    {'icon': 'el-icon-delete-location', 'name': '提现管理', url: '/admin/atm', sub_menu: []},
-                    {'icon': 'el-icon-message-solid', 'name': '公告管理', url: '/admin/notice', sub_menu: []},
                 ]
             }
         },
-        methods: {}
+        methods: {
+            toggleFullScreen() {
+                if (!document.fullscreenElement &&
+                    !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  // current working methods
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    } else if (document.documentElement.msRequestFullscreen) {
+                        document.documentElement.msRequestFullscreen();
+                    } else if (document.documentElement.mozRequestFullScreen) {
+                        document.documentElement.mozRequestFullScreen();
+                    } else if (document.documentElement.webkitRequestFullscreen) {
+                        document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            }
+
+        }
     }
 </script>
 
@@ -83,25 +101,26 @@
     }
 
     .header .title {
+        color: black;
         padding: 10px;
         font-weight: bold;
         font-size: 20px;
+        text-decoration: none;
     }
 
     .header .toolbar {
         padding: 10px;
     }
 
-    .header .toolbar i{
+    .header .toolbar i {
         cursor: pointer;
         padding: 0 10px;
         font-weight: bold;
     }
 
 
-
     .main {
         padding: 0;
-
+        position: relative;
     }
 </style>

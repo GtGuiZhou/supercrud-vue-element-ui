@@ -47,10 +47,12 @@
                                 :width="field.width"
                                 v-if="isHideField(field.name)"
                                 :key="field.name"
-                                :prop="field.name"
                                 :label="field.comment?field.comment:field.name"
 
                         >
+                            <template slot-scope="scope">
+                                <column :field="field" :row="scope.row"></column>
+                            </template>
                         </el-table-column>
                     </slot>
                 </template>
@@ -98,10 +100,11 @@
     // import Field from "./fields/field";
     import CrudForm from "./CrudForm";
     import CrudFilter from "./CrudFilter";
+    import Column from "./column/column";
 
     export default {
         name: "CrudIndex",
-        components: {CrudFilter, CrudForm},
+        components: {Column, CrudFilter, CrudForm},
         // components: {Field},
         props: {
             insertForm: {
@@ -229,14 +232,18 @@
             },
 
             // 删除指定行
-            deleteRow(row) {
-                this.deleteRowIds = row[this.primaryFieldName]
-                return this.$http.delete(this.deleteUrl)
+           async deleteRow(row) {
+               this.deleteRowIds = row[this.primaryFieldName]
+               await this.$http.delete(this.deleteUrl)
+               this.$notify.success('删除成功')
+               this.refresh()
             },
             // 删除选中行
-            deleteSelection() {
+            async deleteSelection() {
                 this.deleteRowIds = this.selection.map(item => item[this.primaryFieldName]).join(',')
-                return this.$http.delete(this.deleteUrl)
+                await this.$http.delete(this.deleteUrl)
+                this.$notify.success('删除成功')
+                this.refresh()
             },
             // 设置当前数据分页
             setPagingIndex(index) {

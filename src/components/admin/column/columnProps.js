@@ -7,7 +7,7 @@ export default {
             type: 'text'
         })
     },
-    formData: {
+    row: {
         type: Object,
         default: () => ({})
     }

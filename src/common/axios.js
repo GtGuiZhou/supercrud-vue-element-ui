@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const urlParams = 'XDEBUG_SESSION_START=18855'
-const urlParams = ''
+const urlParams = 'XDEBUG_SESSION_START=13557'
+// const urlParams = ''
 
 
 // 创建一个 axios 实例
@@ -29,7 +29,7 @@ service.interceptors.request.use(function (config) {
 
 // 添加响应拦截器
 service.interceptors.response.use(function (response) {
-    return response.data.data;
+    return response.data;
 }, function (error) {
     window.console.error("--------------------------- request error ---------------------------")
     window.console.error(error)

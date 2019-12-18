@@ -1,19 +1,21 @@
 <template>
-    <el-form ref="form" :model="formData" :rules="rules" :label-width="getConfig('labelWidth','80px')">
-        <template v-for="field in fields">
-            <el-form-item
-                    v-if="isHideField(field.name)"
-                    :prop="field.name"
-                    :key="field.name"
-                    :label="field.comment?field.comment:field.name">
-                <field :form-data="formData" :field="field"></field>
+    <div v-on:keypress.enter="onSubmit">
+        <el-form ref="form" :model="formData" :rules="rules" :label-width="getConfig('labelWidth','80px')" >
+            <template v-for="field in fields">
+                <el-form-item
+                        v-if="isHideField(field.name)"
+                        :prop="field.name"
+                        :key="field.name"
+                        :label="field.comment?field.comment:field.name">
+                    <field :form-data="formData" :field="field"></field>
+                </el-form-item>
+            </template>
+            <el-form-item>
+                <el-button v-loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交
+                </el-button>
             </el-form-item>
-        </template>
-        <el-form-item>
-            <el-button v-loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交
-            </el-button>
-        </el-form-item>
-    </el-form>
+        </el-form>
+    </div>
 </template>
 
 <script>
@@ -48,14 +50,8 @@
         computed: {
           rules () {
               let rules = {}
-              this.fields.forEach(({name}) => {
-                  let valid = this.getConfig('validate',false)
-                  if (!(name in rules)){
-                      rules[name] = []
-                  }
-                  if (valid){
-                      rules[name].push(valid)
-                  }
+              this.fields.forEach(field => {
+                  rules[field.name]  = 'validate' in field?field.validate:[]
               })
               return rules
           }
@@ -68,6 +64,7 @@
                         this.submitLoading = true
                         try {
                             await this.submit(this.formData)
+                            this.$notify.success('提交成功')
                             this.$emit('submit-success')
                         } catch (e) {
                             this.$emit('submit-fail')

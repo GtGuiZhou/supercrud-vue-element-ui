@@ -7,7 +7,7 @@
 
 <script>
     export default {
-        name: "404",
+        name: "NOTFOUND-404",
         data() {
             return {}
         },
