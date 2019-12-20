@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const urlParams = 'XDEBUG_SESSION_START=13557'
-// const urlParams = ''
+// const urlParams = 'XDEBUG_SESSION_START=13557'
+const urlParams = ''
 
 
 // 创建一个 axios 实例

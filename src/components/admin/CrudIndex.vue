@@ -201,7 +201,6 @@
                 this.loadingData = true
                 try {
                     const res = await this.$http.get(this.getUrl)
-                    window.console.log(res)
                     this.tableData = res.data
                     this.pagingTotal = res.total
                 } finally {

@@ -13,7 +13,9 @@
         components: {CrudIndex},
         data() {
             return {
-                filter: {},
+                filter: {
+                    hideFields: ['password','create_time']
+                },
                 table: {
                     baseUrl: '/admin/admins',
                     hideFields: ['password']

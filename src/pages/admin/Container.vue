@@ -14,7 +14,7 @@
                             你好， Admin<i class="el-icon-arrow-down el-icon--right"></i>
                         </div>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item>退出登录</el-dropdown-item>
+                            <el-dropdown-item ><span @click="logout">退出登录</span></el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </div>
@@ -66,6 +66,9 @@
             }
         },
         methods: {
+            logout(){
+                this.$router.replace('/admin/login')
+            },
             toggleFullScreen() {
                 if (!document.fullscreenElement &&
                     !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {  // current working methods

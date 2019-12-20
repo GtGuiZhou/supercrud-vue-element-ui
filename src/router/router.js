@@ -34,6 +34,7 @@ export default [
                     sortRouter('admin/admin','crud','admin/Admin'),
                 ]
             },
+            sortRouter('admin/login','crud','admin/Login'),
         ]
     },
     sortRouter('*','404','404')
