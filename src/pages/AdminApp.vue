@@ -5,9 +5,7 @@
             <div style="text-align: center">
                 <i class="iconfont icon-baoqian" style="color: #409EFF;font-size: 64px"></i>
                 <h2>当前位置需要登录，请先登录</h2>
-                <router-link to="/admin/login">
-                    <el-button type="primary" >跳转登录</el-button>
-                </router-link>
+                    <el-button type="primary" @click="jumpLogin">跳转登录</el-button>
             </div>
         </el-dialog>
     </div>
@@ -37,7 +35,10 @@
             }
         },
         methods: {
-
+            jumpLogin(){
+                this.visualLoginConfirm = false
+                this.$router.push('/admin/login')
+            }
         }
     }
 </script>

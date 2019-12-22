@@ -11,7 +11,7 @@
                     <i class="el-icon-tickets"></i>
                     <el-dropdown style="cursor: pointer">
                         <div>
-                            你好， Admin<i class="el-icon-arrow-down el-icon--right"></i>
+                            你好， {{$store.state.user.username}}<i class="el-icon-arrow-down el-icon--right"></i>
                         </div>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item ><span @click="logout">退出登录</span></el-dropdown-item>
@@ -65,8 +65,10 @@
                 ]
             }
         },
+
         methods: {
-            logout(){
+            async logout(){
+                await this.$http.put('/admin/admins/logout')
                 this.$router.replace('/admin/login')
             },
             toggleFullScreen() {

@@ -1,7 +1,5 @@
 <template>
     <div>
-
-
         <crud-index :insert-form="insertForm" :edit-form="editForm" :filter="filter" :table="table" :fields="fields"></crud-index>
     </div>
 </template>

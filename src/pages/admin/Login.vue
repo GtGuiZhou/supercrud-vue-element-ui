@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-form ref="form" :rules="rules" :model="form" label-width="60px">
+        <el-form ref="form" :rules="rules" :model="form" label-width="60px" v-on:keypress.enter="onSubmit">
             <el-card class="login-card">
                 <h2 class="title">登录</h2>
                 <el-form-item prop="username" label="账号">
@@ -31,30 +31,19 @@
                     password: [{required: true,message: '必须填写密码'}],
                 },
                 form: {
-                    username: '',
-                    password: ''
+                    username: 'admin',
+                    password: 'cs123456'
                 }
             }
         },
         methods: {
             onSubmit(){
-                // this.$router.replace('/admin')
-                //
                 this.$refs.form.validate((valid) => {
                     if (valid) {
-                        this.$http.post('/admin/login',this.form).then(
+                        this.$http.post('/admin/admins/login',this.form).then(
                             res => {
-                                console.log(this.$router.options.routes)
-                                // this.$store.commit('setUser',res.data.user)
-
+                                this.$store.commit('setUser',res)
                                 this.$router.replace('/admin')
-                                return
-                                // 有bug，从其他网站网页进来也会返回
-                                if(this.$router.options.routes.length > 0){
-                                    this.$router.back() // 不用担心上一个页面是login页面，进而导致死循环，因为vuerouter不允许跳转同一个页面
-                                } else {
-
-                                }
                             }
                         )
                     } else {
