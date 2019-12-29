@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-button icon="el-icon-upload"
+        <el-button
+                :disabled="disabled"
+                icon="el-icon-upload"
                    plain type="success" @click="selectFile" v-if="visualUploadBtn" v-loading="uploadBtnLoading">点击上传
         </el-button>
         <input :accept="config.accept" hidden ref="selectFile" multiple type="file" @change="upload" />

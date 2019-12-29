@@ -18,15 +18,19 @@
                     </el-button>
                 </div>
                 <div>
-                    <el-input style="width: 300px" v-model="searchContent" placeholder="请输入搜索内容"></el-input>
+                    <el-input style="width: 250px" v-model="searchContent" placeholder="请输入搜索内容"></el-input>
                     <el-button type="success" plain icon="el-icon-search">搜索</el-button>
                     <el-button type="warning" plain icon="el-icon-s-operation" @click="toggleFilter">筛选</el-button>
+                    <el-button type="info" icon="el-icon-more" @click="visualMore = true"></el-button>
                 </div>
             </div>
         </div>
 
         <div class="range">
             <el-table
+                    :default-expand-all="tableConfig.defaultExpandAll"
+                    :row-key="tableConfig.rowKey"
+                    :tree-props="tableConfig.treeProps"
                     @sort-change="sortChange"
                     v-loading="loadingData"
                     @selection-change="onSelectionChange"
@@ -48,7 +52,7 @@
                                 v-if="isHideField(field.name)"
                                 :key="field.name"
                                 :label="field.comment?field.comment:field.name"
-
+                                :prop="field.name"
                         >
                             <template slot-scope="scope">
                                 <column :field="field" :row="scope.row"></column>
@@ -57,14 +61,17 @@
                     </slot>
                 </template>
 
-                <el-table-column label="操作" width="180" v-if="tableConfig.actionColumn">
+                <el-table-column label="操作" :width="tableConfig.actionWidth" v-if="tableConfig.actionColumn">
                     <template slot-scope="scope">
-                        <el-button type="warning" plain @click="editRow(scope.row)" v-if="isAuth('edit')"
-                                   icon="el-icon-edit" size="mini">编辑
-                        </el-button>
-                        <el-button type="danger" plain @click="deleteRow(scope.row)" v-if="isAuth('delete')"
-                                   icon="el-icon-delete" size="mini">删除
-                        </el-button>
+                            <slot name="table-action-left" v-bind="scope"></slot>
+                            <el-button type="warning" plain @click="editRow(scope.row)" v-if="isAuth('edit')"
+                                       icon="el-icon-edit" size="mini">编辑
+                            </el-button>
+                            <slot name="table-action-middle" v-bind="scope"></slot>
+                            <el-button type="danger" plain @click="deleteRow(scope.row)" v-if="isAuth('delete')"
+                                       icon="el-icon-delete" size="mini">删除
+                            </el-button>
+                            <slot name="table-action-right" v-bind="scope"></slot>
                     </template>
                 </el-table-column>
 
@@ -86,12 +93,16 @@
             <div slot="title" style="border-bottom: 1px solid #e6e6e6;padding-bottom: 10px"><i
                     class="el-icon-document"/>{{formTitle}}
             </div>
-            <crud-form :submit="formSubmit" :form-config="formConfig" :form-data="formData" :url="formUrl"
+            <crud-form :submit="formSubmit" :form-config="formConfig" :form-data="formData"
                        :fields="fields" @submit-success="refresh"></crud-form>
             <div slot="footer" class="form-footer">
                 <!--                这里用云的动漫图-->
-                <img src="../../assets/form_footer.jpg">
+<!--                <img src="../../assets/form_footer.jpg">-->
             </div>
+        </el-dialog>
+
+        <el-dialog :modal="false" :visible.sync="visualMore" title="更多">
+            <slot name="more"></slot>
         </el-dialog>
     </div>
 </template>
@@ -107,6 +118,22 @@
         components: {Column, CrudFilter, CrudForm},
         // components: {Field},
         props: {
+            wherePlus:{
+                type: Object,
+                default: () => ({})
+            },
+            orderPlus:{
+                type: Object,
+                default: () => ({})
+            },
+            baseUrl: {
+                type: String,
+                default: ''
+            },
+            relations: {
+                type: Array,
+                default: () => []
+            },
             insertForm: {
                 type: Object,
                 default: () => ({})
@@ -130,6 +157,7 @@
         computed: {
             tableConfig() {
                 let _default = {
+                    treeProps: {},
                     pk: 'id',
                     selection: true,
                     actionColumn: true,
@@ -139,7 +167,10 @@
                     getUrl: '',
                     insertUrl: '',
                     editUrl: '',
-                    deleteUrl: ''
+                    deleteUrl: '',
+                    actionWidth: '180',
+                    rowKey: '',
+                    defaultExpandAll: false
                 }
                 for (let key in this.table) {
                     _default[key] = this.table[key]
@@ -149,26 +180,7 @@
             primaryFieldName() {
                 return this.tableConfig.pk
             },
-            baseUrl() {
-                return this.tableConfig.baseUrl
-            },
-            getUrl() {
-                // 排序查询
-                let sortStr = encodeURIComponent(JSON.stringify(this.sort))
-                // where查询
-                let whereStr = encodeURIComponent(JSON.stringify(this.where))
-                return this.baseUrl + this.tableConfig.getUrl + '/page/' + this.pagingIndex + '/size/' + this.pagingSize
-                    + "?sort=" + sortStr + '&where=' + whereStr
-            },
-            insertUrl() {
-                return this.baseUrl + this.tableConfig.insertUrl
-            },
-            editUrl() {
-                return this.baseUrl + this.tableConfig.editUrl
-            },
-            deleteUrl() {
-                return this.baseUrl + this.tableConfig.deleteUrl + '/' + this.deleteRowIds
-            }
+
         },
         data() {
             return {
@@ -181,9 +193,9 @@
                 loadingData: false,
                 deleteRowIds: '',
                 visualForm: false,
+                visualMore: false,
                 visualFilter: false,
                 formTitle: '',
-                formUrl: '',
                 formData: {},
                 formConfig: {},
                 formSubmit: null,
@@ -199,24 +211,31 @@
             // 刷新数据
             async refresh() {
                 this.loadingData = true
+                this.$emit('refresh-before')
                 try {
-                    const res = await this.$http.get(this.getUrl)
+                    const res = await this.$http.get(this.getUrl())
                     this.tableData = res.data
                     this.pagingTotal = res.total
                 } finally {
                     this.loadingData = false
                 }
+                this.$emit('refresh-after')
             },
             // 新增一行数据
             insertRow() {
                 this.formTitle = '新增'
-                this.formUrl = this.insertUrl
                 this.formConfig = this.insertForm
                 this.formSubmit = formData => {
-                    return this.$http.post(this.insertUrl, formData)
+                    return this.$http.post(this.insertUrl(), formData)
                 }
                 this.visualForm = true
-                this.formData = this.generateEmptyForm()
+                let row = {}
+                // 构造表单数据
+                this.fields.forEach(field => {
+                    // 填入默认值
+                    row[field.name] = 'default' in field ? field.default : ''
+                })
+                this.formData = row
             },
 
             // 编辑指定行数据
@@ -225,7 +244,7 @@
                 this.formConfig = this.editForm
                 this.formData = JSON.parse(JSON.stringify(row))
                 this.formSubmit = formData => {
-                    return this.$http.put(this.editUrl + '/' + this.formData[this.primaryFieldName], formData)
+                    return this.$http.put(this.editUrl() + '/' + this.formData[this.primaryFieldName], formData)
                 }
                 this.visualForm = true
             },
@@ -233,14 +252,14 @@
             // 删除指定行
            async deleteRow(row) {
                this.deleteRowIds = row[this.primaryFieldName]
-               await this.$http.delete(this.deleteUrl)
+               await this.$http.delete(this.deleteUrl())
                this.$notify.success('删除成功')
                this.refresh()
             },
             // 删除选中行
             async deleteSelection() {
                 this.deleteRowIds = this.selection.map(item => item[this.primaryFieldName]).join(',')
-                await this.$http.delete(this.deleteUrl)
+                await this.$http.delete(this.deleteUrl())
                 this.$notify.success('删除成功')
                 this.refresh()
             },
@@ -259,16 +278,22 @@
                 this.selection = selection
             },
             // 排序改变
-            sortChange(column) {
-                let {prop, order} = column
-                order = order === 'descending' ? 'desc' : 'asc'
+            sortChange({prop,order}) {
+                this.sort = {} // 由于el-table 暂不支持同时多个排序，所以先清空之前的排序
                 this.sort[prop] = order
+                this.refresh()
             },
             // toggle过滤模块
             toggleFilter(){
                 this.visualFilter = !this.visualFilter
                 if (this.visualFilter){
-                    this.filterForm = this.generateEmptyForm()
+                    let row = {}
+                    // 构造表单数据
+                    this.fields.forEach(field => {
+                        // 填入默认值
+                        row[field.name] = ''
+                    })
+                    this.filterForm = row
                 } else {
                     this.where = {}
                 }
@@ -277,6 +302,10 @@
             queryFilter(where){
                 this.where = where
                 this.refresh()
+            },
+            // 关闭更多弹出框
+            closeMoreDialog(){
+              this.visualMore = false
             },
 
             // 组件方法
@@ -289,14 +318,34 @@
             isAuth(authName) {
                 return this.tableConfig.auth.some(item => authName === item)
             },
-            generateEmptyForm(){
-                let row = {}
-                // 构造表单数据
-                this.fields.forEach(field => {
-                    // 填入默认值
-                    row[field.name] = 'default' in field ? field.default : ''
-                })
-                return row
+            // URL，放在Computed中有些问题
+            getUrl() {
+                // 排序查询
+                let sort = {}
+                for(let key in this.sort){
+                    sort[key] = this.sort[key] === 'descending'?'desc':'asc'
+                }
+
+                let sortStr = encodeURIComponent(JSON.stringify(sort))
+
+                let where = JSON.parse(JSON.stringify(this.where))
+                for (let key in this.wherePlus){
+                    where[key] = this.wherePlus[key]
+                }
+                let whereStr = encodeURIComponent(JSON.stringify(where))
+
+                let releationsStr = encodeURIComponent(JSON.stringify(this.relations))
+                return this.baseUrl + this.tableConfig.getUrl + '?page=' + this.pagingIndex + '&size=' + this.pagingSize
+                    + "&sort=" + sortStr + '&where=' + whereStr + '&search=' + this.searchContent + '&relations=' + releationsStr
+            },
+            insertUrl() {
+                return this.baseUrl + this.tableConfig.insertUrl
+            },
+            editUrl() {
+                return this.baseUrl + this.tableConfig.editUrl
+            },
+            deleteUrl() {
+                return this.baseUrl + this.tableConfig.deleteUrl + '/' + this.deleteRowIds
             }
         }
     }

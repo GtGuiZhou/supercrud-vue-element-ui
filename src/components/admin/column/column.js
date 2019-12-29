@@ -1,15 +1,19 @@
 import TextColumn from "./TextColumn";
-import fieldProps from './columnProps'
+import columnProps from './columnProps'
 import FileColumn from "./FileColumn";
+import RadioColumn from "./RadioColumn";
+import SelectColumn from "./SelectColumn";
 
 export default {
     props: {
-        ...fieldProps
+        ...columnProps
     },
     data: () => ({
         componentsMap: {
             'text': TextColumn, // 这个一定不要删除，默认情况下为该组件
-            'file' : FileColumn
+            'file' : FileColumn,
+            'radio': RadioColumn,
+            'select': SelectColumn
         },
     }),
     render: function (createElement) {
@@ -21,11 +25,12 @@ export default {
         } else {
             component = this.componentsMap['text']
         }
+        let props = {}
+        for (let propKey in columnProps){
+            props[propKey] = this[propKey]
+        }
         return createElement(component, {
-            props: {
-                field: this.field,
-                row: this.row
-            }
+            props: props
         }, this.$slots.default)
     }
 }

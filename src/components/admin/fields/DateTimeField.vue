@@ -1,5 +1,6 @@
 <template>
     <el-date-picker
+            :disabled="disabled"
             v-model="formData[field.name]"
             type="datetime"
             placeholder="选择日期时间">

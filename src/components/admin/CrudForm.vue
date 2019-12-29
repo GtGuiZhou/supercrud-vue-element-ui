@@ -3,17 +3,19 @@
         <el-form ref="form" :model="formData" :rules="rules" :label-width="getConfig('labelWidth','80px')" >
             <template v-for="field in fields">
                 <el-form-item
-                        v-if="isHideField(field.name)"
+                        v-if="!isHideField(field.name)"
                         :prop="field.name"
                         :key="field.name"
                         :label="field.comment?field.comment:field.name">
-                    <field :form-data="formData" :field="field"></field>
+                    <field :disabled="isDisabledField(field.name)" :form-data="formData" :field="field"></field>
                 </el-form-item>
             </template>
+
             <el-form-item>
                 <el-button :loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交
                 </el-button>
             </el-form-item>
+
         </el-form>
     </div>
 </template>
@@ -40,7 +42,7 @@
             fields: {
                 type: Array,
                 default: () => []
-            }
+            },
         },
         data() {
             return {
@@ -79,7 +81,13 @@
             // 组件方法
             isHideField(fieldName) {
                 const hideFields = this.getConfig('hideFields', [])
-                return !hideFields.some(item => {
+                return hideFields.some(item => {
+                    return item === fieldName
+                })
+            },
+            isDisabledField(fieldName) {
+                const disabledFields = this.getConfig('disabledFields', [])
+                return disabledFields.some(item => {
                     return item === fieldName
                 })
             },

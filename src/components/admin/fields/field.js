@@ -2,6 +2,10 @@ import DateTimeField from "./DateTimeField";
 import TextField from "./TextField";
 import fieldProps from './fieldProps'
 import FileField from "./FileField";
+import SelectField from "./SelectField";
+import RadioField from "./RadioField";
+import TextAreaField from "./TextAreaField";
+import NumberField from "./NumberField";
 
 export default {
     props: {
@@ -11,7 +15,11 @@ export default {
         componentsMap: {
             'text': TextField, // 这个一定不要删除，默认情况下为该组件
             'datetime': DateTimeField,
-            'file' : FileField
+            'file' : FileField,
+            'select': SelectField,
+            'radio': RadioField,
+            'textarea': TextAreaField,
+            'number' : NumberField
         },
     }),
     render: function (createElement) {
@@ -23,12 +31,13 @@ export default {
         } else {
             component = this.componentsMap['text']
         }
+
+        let props = {}
+        for (let propKey in fieldProps){
+            props[propKey] = this[propKey]
+        }
         return createElement(component, {
-            props: {
-                index: this.index,
-                field: this.field,
-                formData: this.formData
-            }
+            props: props
         }, this.$slots.default)
     }
 }

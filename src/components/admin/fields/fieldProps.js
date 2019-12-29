@@ -7,6 +7,10 @@ export default {
             type: 'text'
         })
     },
+    disabled: {
+      type: Boolean,
+      default: () => false
+    },
     formData: {
         type: Object,
         default: () => ({})
