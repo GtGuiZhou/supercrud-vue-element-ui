@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-// const urlParams = 'XDEBUG_SESSION_START=13557'
+// const urlParams = 'XDEBUG_SESSION_START=13708'
 const urlParams = ''
 
 
@@ -37,6 +37,9 @@ service.interceptors.response.use(function (response) {
     switch (status) {
         case 500:
             service.errMsg("服务器内部错误")
+            break;
+        case 400:
+            service.errMsg(error.response.data.message)
             break;
         case 401:
             service.err401()
