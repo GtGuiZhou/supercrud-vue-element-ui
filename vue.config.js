@@ -9,7 +9,8 @@ module.exports = {
     devServer: {
         // publicPath: baseUrl // 和 baseUrl 保持一致
         proxy: {
-            '/admin': {
+            // ^用来防止类似/api/user路由，出现代理为/user/api/user的情况
+            '^/admin': {
                 // target: ' https://www.easy-mock.com/mock/5c2af2c68b1b183c2bda4f06/api',
                 target: 'http://127.0.0.14/admin',
                 ws: true,
@@ -18,7 +19,7 @@ module.exports = {
                     '^/admin': ''
                 }
             },
-            '/user': {
+            '^/user': {
                 // target: ' https://www.easy-mock.com/mock/5c2af2c68b1b183c2bda4f06/api',
                 target: 'http://127.0.0.14/user',
                 ws: true,
@@ -27,7 +28,7 @@ module.exports = {
                     '^/user': ''
                 }
             },
-            '/api': {
+            '^/api': {
                 // target: ' https://www.easy-mock.com/mock/5c2af2c68b1b183c2bda4f06/api',
                 target: 'http://127.0.0.14/api',
                 ws: true,
