@@ -6,6 +6,7 @@ import SelectField from "./SelectField";
 import RadioField from "./RadioField";
 import TextAreaField from "./TextAreaField";
 import NumberField from "./NumberField";
+import CheckboxField from "./CheckboxField";
 
 export default {
     props: {
@@ -19,6 +20,7 @@ export default {
             'select': SelectField,
             'radio': RadioField,
             'textarea': TextAreaField,
+            'check':  CheckboxField,
             'number' : NumberField
         },
     }),

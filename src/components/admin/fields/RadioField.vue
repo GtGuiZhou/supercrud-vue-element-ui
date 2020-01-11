@@ -8,7 +8,7 @@
     import fieldProps from './fieldProps'
 
     export default {
-        name: "SelectField",
+        name: "RadioField",
         props: {
             ...fieldProps
         },

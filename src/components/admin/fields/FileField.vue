@@ -3,20 +3,24 @@
         <el-button
                 :disabled="disabled"
                 icon="el-icon-upload"
-                   plain type="success" @click="selectFile" v-if="visualUploadBtn" v-loading="uploadBtnLoading">点击上传
+                plain type="success" @click="selectFile" v-if="visualUploadBtn" :loading="uploadBtnLoading">点击上传
         </el-button>
-        <input :accept="config.accept" hidden ref="selectFile" multiple type="file" @change="upload" />
+        <input :accept="config.accept" hidden ref="selectFile" :multiple="config.multiple" type="file" @change="upload" />
         <div>
-            <viewer :images="images" style="display: flex;justify-content: left;margin: 10px 0">
-                <div v-for="url in images"
-                     :key="url"
-                     :style="{width:config.imgWidth,height:config.imgHeight,position: 'relative',lineHeight:'0',marginRight:'5px'}">
-                    <img :src="config.model === 'image'?url:fileIcon">
-                    <div class="cross" @click="handleDelete(index)">
-                        <i class="el-icon-error"></i>
-                    </div>
+            <!--            <viewer :images="images" style="display: flex;justify-content: left;margin: 10px 0">-->
+            <div    v-for="(url,index) in images"
+                    :key="url"
+                    class="image"
+                    :style="{width:config.imgWidth,height:config.imgHeight}"
+            >
+                <img
+                        style="width: 100%;height: 100%"
+                        :src="config.mode === 'image'?url:fileIcon">
+                <div class="cross" @click="handleDelete(index)">
+                    <i class="el-icon-error"></i>
                 </div>
-            </viewer>
+            </div>
+            <!--            </viewer>-->
         </div>
     </div>
 </template>
@@ -55,7 +59,7 @@
             },
 
             visualUploadBtn() {
-                return !(this.config.maxNumber > 0 && this.config.maxNumber < this.images.length)
+                return this.config.maxNumber <= 0 || this.config.maxNumber > this.images.length
             },
             config() {
                 let _default = {
@@ -66,7 +70,8 @@
                     minNumber: 0,
                     maxSize: 0,
                     minSize: 0,
-                    accept: ''
+                    accept: '',
+                    multiple: false
                 }
                 for (let key in this.field) {
                     _default[key] = this.field[key]
@@ -129,7 +134,10 @@
                 }
             },
 
-            handleDelete() {
+            handleDelete(index) {
+                let arr = this.value.split(',')
+                arr.splice(index,1)
+                this.value = arr.join(',')
             }
         }
     }
@@ -140,5 +148,12 @@
         position: absolute;
         right: 2px;
         top: 2px;
+    }
+
+    .image{
+        position: relative;
+        display: inline-block;
+        line-height: 0;
+        margin: 5px 5px 5px 0;
     }
 </style>

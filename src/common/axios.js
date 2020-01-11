@@ -54,7 +54,7 @@ service.interceptors.response.use(function (response) {
 
 
 service.uploads = (form) => {
-    return service.post('/api/uploads', form)
+    return service.post('/api/files/upload', form)
 }
 
 
