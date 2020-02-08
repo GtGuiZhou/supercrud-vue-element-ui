@@ -12,8 +12,7 @@
             </template>
 
             <el-form-item>
-                <el-button :loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交
-                </el-button>
+                <el-button :loading="submitLoading" type="primary" @click="onSubmit" icon="el-icon-s-promotion">提 交</el-button>
             </el-form-item>
 
         </el-form>

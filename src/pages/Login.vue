@@ -1,16 +1,23 @@
 <template>
     <div>
-        <el-form ref="form" :rules="rules" :model="form" label-width="60px" v-on:keypress.enter="onSubmit">
+<!--        <img class="background-image" src="../../assets/admin/login-background.jpg">-->
+        <el-form ref="form" :rules="rules" :model="form" label-width="80px" v-on:keypress.enter="onSubmit">
             <el-card class="login-card">
                 <h2 class="title">登录</h2>
                 <el-form-item prop="username" label="账号">
                     <el-input v-model="form.username"></el-input>
                 </el-form-item>
                 <el-form-item prop="password" label="密码">
-                    <el-input v-model="form.password" show-password @keyup.enter="onSubmit()"></el-input>
+                    <el-input v-model="form.password" show-password ></el-input>
+                </el-form-item>
+                <el-form-item prop="password" label="验证码">
+                    <div style="display: flex;align-items: center;justify-content: space-between" >
+                        <el-input placeholder="请输入图形验证码的内容" v-model="form.captcha" @change="onSubmit()" style="width: 200px"></el-input>
+                        <img style="border-radius: 5px;cursor: pointer" ref="captcha" src="/api/captcha/image" @click="refreshCaptcha">
+                    </div>
                 </el-form-item>
                 <div style="text-align: center">
-                    <el-button type="primary" @click="onSubmit">登陆系统</el-button>
+                    <el-button type="primary" @click="onSubmit" style="width: 300px">登陆系统</el-button>
                 </div>
             </el-card>
         </el-form>
@@ -31,19 +38,28 @@
                     password: [{required: true,message: '必须填写密码'}],
                 },
                 form: {
-                    username: 'admin',
+                    username: 'superadmin',
                     password: 'cs123456'
                 }
             }
         },
         methods: {
+            refreshCaptcha(){
+                this.$refs.captcha.setAttribute('src','/api/captcha/image?rand=' + Math.random())
+            },
+
             onSubmit(){
                 this.$refs.form.validate((valid) => {
                     if (valid) {
-                        this.$http.post('/admin/admins/login',this.form).then(
+                        this.$http.post('/admin/login',this.form).then(
                             res => {
-                                this.$store.commit('setUser',res)
+                                localStorage.setItem('adminUsername',res.username)
+                                localStorage.setItem('token',res.token)
                                 this.$router.replace('/admin')
+                            }
+                        ).catch(
+                            () => {
+                                this.refreshCaptcha()
                             }
                         )
                     } else {
@@ -57,9 +73,19 @@
 </script>
 
 <style scoped>
+    .background-image{
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
     .login-card {
+        position: relative;
+        z-index: 9999;
         width: 500px;
-        margin: 200px auto;
+        margin: 100px auto;
     }
 
     .footer{

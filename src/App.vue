@@ -7,7 +7,29 @@
 
 export default {
   name: 'app',
-  components: {}
+  components: {},
+  data(){
+    return {
+      visualLoginConfirm: false,
+    }
+  },
+  created() {
+    // 重写401错误处理方法
+    this.$http.err401 = () => {
+      this.visualLoginConfirm = true
+    }
+
+    // 重写错误消息处理方法
+    this.$http.errMsg = msg => {
+      this.$notify.error(msg)
+    }
+  },
+  methods: {
+    jumpLogin(){
+      this.visualLoginConfirm = false
+      this.$router.push('/login')
+    }
+  }
 }
 </script>
 

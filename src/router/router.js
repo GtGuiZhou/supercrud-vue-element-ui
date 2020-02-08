@@ -11,7 +11,7 @@ const sortRouter = (path, name = null, component = null) => {
     return {
         name: name,
         path: '/' + path,
-        component: require('@/pages/' + component).default
+        component: _import(component)
     }
 }
 
@@ -19,23 +19,18 @@ const sortRouter = (path, name = null, component = null) => {
 export default [
     {
         name:'admin-app',
-        component:_import('AdminApp'),
+        component:_import('Container'),
         path: '/admin',
         redirect: '/admin/welcome',
         children: [
-            {
-                name:'admin-container',
-                component:_import('admin/Container'),
-                path: '/admin/container',
-                redirect: '/admin/welcome',
-                children: [
-                    sortRouter('admin/welcome','welcome','admin/Welcome'),
-                    sortRouter('admin/crud','crud','admin/Crud'),
-                    sortRouter('admin/admin','crud','admin/Admin'),
-                ]
-            },
-            sortRouter('admin/login','crud','admin/Login'),
+            {name:'rule',path:'/admin/rule',component: _import('container/rule/Index')},
+            {name:'role',path:'/admin/role',component: _import('container/role/Index')},
+            {name:'admin',path:'/admin/admin',component: _import('container/admin/Index')},
+            {name:'welcome',path:'/admin/welcome',component: _import('container/Welcome')},
+            {name:'crud',path:'/admin/crud',component: _import('container/Crud')},
+            {name:'test',path:'/admin/test',component: _import('container/Test')},
         ]
     },
+    sortRouter('login','login','Login'),
     sortRouter('*','404','404')
 ]

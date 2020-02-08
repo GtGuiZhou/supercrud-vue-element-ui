@@ -12,7 +12,7 @@ module.exports = {
             // ^用来防止类似/api/user路由，出现代理为/user/api/user的情况
             '^/admin': {
                 // target: ' https://www.easy-mock.com/mock/5c2af2c68b1b183c2bda4f06/api',
-                target: 'http://127.0.0.14/admin',
+                target: 'http://localhost:8000/admin',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {
@@ -21,7 +21,7 @@ module.exports = {
             },
             '^/user': {
                 // target: ' https://www.easy-mock.com/mock/5c2af2c68b1b183c2bda4f06/api',
-                target: 'http://127.0.0.14/user',
+                target: 'http://localhost:8000/user',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {
@@ -30,7 +30,7 @@ module.exports = {
             },
             '^/api': {
                 // target: ' https://www.easy-mock.com/mock/5c2af2c68b1b183c2bda4f06/api',
-                target: 'http://127.0.0.14/api',
+                target: 'http://localhost:8000/api',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {

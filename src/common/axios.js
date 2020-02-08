@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const urlParams = 'XDEBUG_SESSION_START=13708'
-const urlParams = ''
+const urlParams = 'XDEBUG_SESSION_START=12590'
+// const urlParams = ''
 
 
 // 创建一个 axios 实例
@@ -20,6 +20,11 @@ service.interceptors.request.use(function (config) {
             config['url'] += '?' + urlParams
         }
     }
+    let token = localStorage.getItem('token')
+    if (token){
+        config.headers['Authorization'] = token
+    }
+
     return config;
 }, function (error) {
     // 对请求错误做些什么
@@ -66,5 +71,6 @@ service.errMsg = (msg) => {
     window.console.warn('---------- axios 请求错误消息未被重写 --------')
     window.console.error(msg)
 }
+
 
 export default service

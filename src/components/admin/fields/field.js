@@ -7,6 +7,7 @@ import RadioField from "./RadioField";
 import TextAreaField from "./TextAreaField";
 import NumberField from "./NumberField";
 import CheckboxField from "./CheckboxField";
+import CascaderField from "./CascaderField";
 
 export default {
     props: {
@@ -21,7 +22,8 @@ export default {
             'radio': RadioField,
             'textarea': TextAreaField,
             'check':  CheckboxField,
-            'number' : NumberField
+            'number' : NumberField,
+            'cascader': CascaderField
         },
     }),
     render: function (createElement) {

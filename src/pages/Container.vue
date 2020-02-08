@@ -11,7 +11,7 @@
                     <i class="el-icon-tickets"></i>
                     <el-dropdown style="cursor: pointer">
                         <div>
-                            你好， {{$store.state.user.username}}<i class="el-icon-arrow-down el-icon--right"></i>
+                            你好， {{adminUsername}}<i class="el-icon-arrow-down el-icon--right"></i>
                         </div>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item ><span @click="logout">退出登录</span></el-dropdown-item>
@@ -19,22 +19,22 @@
                     </el-dropdown>
                 </div>
             </el-header>
-            <el-container>
+            <el-container style="position: relative">
                 <el-aside width="200px" class="aside" style="border-right: solid 1px #e6e6e6;">
-                    <el-menu :default-active="$route.path" style="border: 0">
+                    <el-menu :default-active="$route.path.slice(1,$route.path.length)" style="border: 0">
                         <template v-for="menu in menuList">
-                            <el-submenu :index="menu.url" v-if="menu.sub_menu.length > 0" :key="key">
+                            <el-submenu :index="menu.rule" v-if="menu.children.length > 0" :key="menu.rule">
                                 <template slot="title">
                                     <i :class="menu.icon" v-if="menu.icon"></i>
-                                    <span slot="title">{{menu.name}}</span>
+                                    <span>{{menu.name}}</span>
                                 </template>
-                                <el-menu-item v-for="subMenu in menu.sub_menu" :index="subMenu.url"
-                                              :key="subMenu.url" @click="$router.push(subMenu.url)">
+                                <el-menu-item v-for="subMenu in menu.children" :index="subMenu.rule"
+                                              :key="subMenu.rule" @click="$router.push('/' + subMenu.rule)">
                                     <i :class="subMenu.icon" v-if="subMenu.icon"></i>
-                                    <span slot="title">{{subMenu.name}}</span>
+                                    <span >{{subMenu.name}}</span>
                                 </el-menu-item>
                             </el-submenu>
-                            <el-menu-item :index="menu.url" :key="menu.url" v-else @click="$router.push(menu.url)">
+                            <el-menu-item :index="menu.rule" :key="menu.rule" v-else @click="$router.push('/' + menu.rule)">
                                 <i :class="menu.icon" v-if="menu.icon"></i>
                                 {{menu.name}}
                             </el-menu-item>
@@ -52,24 +52,40 @@
 </template>
 
 <script>
-    import FullScreen from "../../components/FullScreen";
-
+    import FullScreen from "../components/FullScreen";
+    import Vue from 'vue'
     export default {
         name: "Container",
         components: {FullScreen},
         data() {
             return {
-                menuList: [
-                    {'icon': 'el-icon-user-solid', 'name': '管理员管理', url: '/admin/admin', sub_menu: []},
-                    {'icon': 'el-icon-user', 'name': '用户管理', url: '/admin/user', sub_menu: []},
-                ]
+                adminUsername: '',
+                menuList: [],
             }
         },
 
+        created() {
+            Vue.prototype.$refreshMenu = this.refreshMenu
+        },
+
+        mounted() {
+            let adminUsername = localStorage.getItem('adminUsername')
+            if (adminUsername) this.adminUsername = adminUsername
+            this.refreshMenu()
+        },
+
         methods: {
+            refreshMenu(){
+              this.$http.get('/admin/menu').then(
+                  res => {
+                      this.menuList = res
+                  }
+              )
+            },
+
             async logout(){
-                await this.$http.put('/admin/admins/logout')
-                this.$router.replace('/admin/login')
+                await this.$http.put('/admin/logout')
+                this.$router.replace('/login')
             },
             toggleFullScreen() {
                 if (!document.fullscreenElement &&
@@ -125,7 +141,12 @@
 
 
     .main {
+        background-color: #e6e6e6;
         padding: 0;
-        position: relative;
+        position: absolute;
+        left: 200px;
+        bottom: 0;
+        right: 0;
+        top: 0;
     }
 </style>

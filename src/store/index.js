@@ -3,11 +3,11 @@ import Vue from 'vue'
 Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
-        user: {}
+        username: ''
     },
     mutations: {
-        setUser(state,user){
-            state.user = user
+        setUsername(state,username){
+            state.username = username
         }
     }
 })
