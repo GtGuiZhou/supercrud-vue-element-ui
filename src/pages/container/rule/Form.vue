@@ -23,6 +23,9 @@
             <el-radio v-model="form.is_menu" label="yes" >是</el-radio>
             <el-radio v-model="form.is_menu" label="no" >否</el-radio>
         </el-form-item>
+        <el-form-item label="排序" prop="order">
+            <el-input v-model="form.order"></el-input>
+        </el-form-item>
         <el-form-item label="图标" prop="icon">
             <br>
             <div class="icon-box">
@@ -58,7 +61,8 @@
                     name: '',
                     rule: '',
                     icon: '',
-                    is_menu: 'yes'
+                    is_menu: 'yes',
+                    order:0
                 }
             }
         },

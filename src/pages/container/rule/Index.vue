@@ -18,6 +18,7 @@
                 <el-table-column prop="icon" label="图标">
                     <template slot-scope="scope"><i :class="scope.row.icon"></i></template>
                 </el-table-column>
+                <el-table-column prop="order" label="排序"></el-table-column>
                 <el-table-column label="操作" width="400">
                     <template slot-scope="scope">
                         <el-button v-if="scope.row.is_menu === 'yes'" type="primary" size="mini" plain

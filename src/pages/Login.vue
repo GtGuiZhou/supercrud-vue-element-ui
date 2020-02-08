@@ -54,7 +54,6 @@
                         this.$http.post('/admin/login',this.form).then(
                             res => {
                                 localStorage.setItem('adminUsername',res.username)
-                                localStorage.setItem('token',res.token)
                                 this.$router.replace('/admin')
                             }
                         ).catch(

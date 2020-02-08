@@ -1,6 +1,13 @@
 <template>
   <div id="app">
     <router-view></router-view>
+    <el-dialog title="登录提醒" :visible.sync="visualLoginConfirm" >
+      <div style="text-align: center">
+        <i class="iconfont icon-baoqian" style="color: #409EFF;font-size: 64px"></i>
+        <h2>当前位置需要登录，请先登录</h2>
+        <el-button type="primary" @click="jumpLogin">跳转登录</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
