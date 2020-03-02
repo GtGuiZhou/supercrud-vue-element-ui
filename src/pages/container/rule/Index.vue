@@ -1,13 +1,13 @@
 <template>
-    <div style="padding: 8px;">
-        <div style="margin-bottom: 8px;padding: 8px;background-color: white">
+    <div >
+        <sp-card>
             <el-button type="primary" @click="insert(rootRule)">添加规则</el-button>
-        </div>
+        </sp-card>
 
         <div class="tree">
             <el-table
                     :data="rulesTree"
-                    style="width: 100%;margin-bottom: 20px;overflow-y: auto;height: 500px"
+                    style="width: 100%;margin-bottom: 20px;height: 500px"
                     row-key="id"
                     border
                     default-expanded-all
@@ -49,10 +49,11 @@
 
 <script>
     import RuleForm from "./Form";
+    import SpCard from "../../../components/SpCard";
 
     export default {
         name: "Rule",
-        components: {RuleForm},
+        components: {SpCard, RuleForm},
         data() {
             return {
                 formTitle: '',
@@ -75,12 +76,9 @@
                 url: '/admin/rule',
             }
         },
-        computed:{
-            rootRule () {
-                if (this.rulesTree.length > 0)
-                    return this.rulesTree[0]
-                else
-                    return {id:0,name: '根规则'}
+        computed: {
+            rootRule() {
+                return {id: 0, name: '根规则'}
             }
         },
         watch: {
@@ -149,15 +147,15 @@
                 )
             },
 
-            insertCrud(row){
+            insertCrud(row) {
                 this.$prompt('请输入控制器名称', '提示').then(
                     async ({value}) => {
-                        let controller =value
-                        await this.$http.post('/admin/rule',{pid:row.id,rule: controller+'/insert',name: '增加'})
-                        await this.$http.post('/admin/rule',{pid:row.id,rule: controller+'/delete',name: '删除'})
-                        await this.$http.post('/admin/rule',{pid:row.id,rule: controller+'/read',name: '指定读'})
-                        await this.$http.post('/admin/rule',{pid:row.id,rule: controller+'/index',name: '批量读'})
-                        await this.$http.post('/admin/rule',{pid:row.id,rule: controller+'/update',name: '修改'})
+                        let controller = value
+                        await this.$http.post('/admin/rule', {pid: row.id, rule: controller + '/insert', name: '增加'})
+                        await this.$http.post('/admin/rule', {pid: row.id, rule: controller + '/delete', name: '删除'})
+                        await this.$http.post('/admin/rule', {pid: row.id, rule: controller + '/read', name: '指定读'})
+                        await this.$http.post('/admin/rule', {pid: row.id, rule: controller + '/index', name: '批量读'})
+                        await this.$http.post('/admin/rule', {pid: row.id, rule: controller + '/update', name: '修改'})
                         this.refreshTable()
                     }
                 )

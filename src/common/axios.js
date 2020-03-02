@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const urlParams = 'XDEBUG_SESSION_START=13787'
+const urlParams = 'XDEBUG_SESSION_START=10368'
 // const urlParams = ''
 
 
@@ -34,7 +34,7 @@ service.interceptors.request.use(function (config) {
 
 // 添加响应拦截器
 service.interceptors.response.use(function (response) {
-    window.console.log(response.headers)
+    // window.console.log(response.headers)
     if ('set-token' in response.headers){
         localStorage.setItem('token',response.headers["set-token"])
     }

@@ -141,12 +141,11 @@
 
 
     .main {
-        background-color: #e6e6e6;
-        padding: 0;
         position: absolute;
         left: 200px;
         bottom: 0;
         right: 0;
         top: 0;
+        padding: 10px;
     }
 </style>

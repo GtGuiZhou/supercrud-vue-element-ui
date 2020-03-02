@@ -1,33 +1,28 @@
-|
-h.jkipjn .m
 <template>
-    <div style="padding: 8px;">
-        <div style="margin-bottom: 8px;padding: 8px;background-color: white">
+    <div>
+        <sp-card>
             <el-button type="primary" @click="insert(rootRole)">添加角色</el-button>
-        </div>
+        </sp-card>
 
-        <div class="tree">
-            <el-table
-                    :data="rolesTree"
-                    style="width: 100%;margin-bottom: 20px;overflow-y: scroll"
-                    row-key="id"
-                    border
-                    default-expand-all
-                    :tree-props="{children: 'children'}">
-                <el-table-column prop="name" label="名称"></el-table-column>
-                <el-table-column label="操作">
-                    <template slot-scope="scope">
-                        <el-button v-if="scope.row.is_menu === 'yes'" type="success" size="mini" plain
-                                   @click="insert(scope.row)">添加子角色
-                        </el-button>
-                        <el-button type="warning" size="mini" plain @click="update(scope.row,scope.$index)">编 辑
-                        </el-button>
-                        <el-button type="danger" size="mini" plain @click="_delete(scope.row)">删 除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
 
-        </div>
+        <el-table
+                :data="rolesTree"
+                row-key="id"
+                border
+                default-expand-all
+                :tree-props="{children: 'children'}">
+            <el-table-column prop="name" label="名称"></el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button v-if="scope.row.is_menu === 'yes'" type="success" size="mini" plain
+                               @click="insert(scope.row)">添加子角色
+                    </el-button>
+                    <el-button type="warning" size="mini" plain @click="update(scope.row,scope.$index)">编 辑
+                    </el-button>
+                    <el-button type="danger" size="mini" plain @click="_delete(scope.row)">删 除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
 
 
         <el-dialog
@@ -35,16 +30,18 @@ h.jkipjn .m
                 :visible.sync="visualForm"
                 :append-to-body="true"
         >
-            <rule-form v-if="visualForm" ref="form" ></rule-form>
+            <rule-form v-if="visualForm" ref="form"></rule-form>
         </el-dialog>
     </div>
 </template>
 
 <script>
     import RuleForm from "./Form";
+    import SpCard from "../../../components/SpCard";
+
     export default {
         name: "Rule",
-        components: {RuleForm},
+        components: {SpCard, RuleForm},
         data() {
             return {
                 rootRole: {},
@@ -136,7 +133,7 @@ h.jkipjn .m
                 this.$nextTick(async () => {
                     let checkRule = await this.$http.get(this.url + '/' + row.id + '/rulesList')
                     checkRule = checkRule.map(rule => rule.id)
-                    this.$refs.form.setRequest('put', this.url +'/' + row.id)
+                    this.$refs.form.setRequest('put', this.url + '/' + row.id)
                         .setFinishCallback(this.formFinish)
                         .setPid(row.id).setForm(row).setCheckRule(checkRule)
                 })

@@ -4,7 +4,7 @@
             <br>
             <div style="height: 150px;overflow-y: auto">
 
-                <el-tree  default-expand-all node-key="id" :data="menuList" :props="{children:'children',label:'name'}" >
+                <el-tree @node-click="clickRoleNode" default-expand-all node-key="id" :data="menuList" :props="{children:'children',label:'name'}" >
                     <div class="custom-tree-node"  slot-scope="{node,data}">
                         <label>{{node.label}}</label>
 
@@ -57,7 +57,7 @@
                 rootRule: rootRule,
                 menuList: [],
                 form: {
-                    pid: this.pid,
+                    pid: 0,
                     name: '',
                     rule: '',
                     icon: '',
@@ -73,6 +73,10 @@
         },
         computed: {},
         methods: {
+            clickRoleNode(node){
+                this.form.pid = node.id
+            },
+
             setPid(pid){
                 this.form.pid = pid
                 return this

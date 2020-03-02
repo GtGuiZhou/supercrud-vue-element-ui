@@ -12,7 +12,7 @@
                 </el-form-item>
                 <el-form-item prop="password" label="验证码">
                     <div style="display: flex;align-items: center;justify-content: space-between" >
-                        <el-input placeholder="请输入图形验证码的内容" v-model="form.captcha" @change="onSubmit()" style="width: 200px"></el-input>
+                        <el-input placeholder="请输入图形验证码的内容" v-model="form.captcha" @keypress.enter.native="onSubmit" style="width: 200px"></el-input>
                         <img style="border-radius: 5px;cursor: pointer" ref="captcha" src="/api/captcha/image" @click="refreshCaptcha">
                     </div>
                 </el-form-item>
@@ -39,12 +39,14 @@
                 },
                 form: {
                     username: 'superadmin',
-                    password: 'cs123456'
+                    password: 'cs123456',
+                    captcha: ''
                 }
             }
         },
         methods: {
             refreshCaptcha(){
+                this.form.captcha = ''
                 this.$refs.captcha.setAttribute('src','/api/captcha/image?rand=' + Math.random())
             },
 
