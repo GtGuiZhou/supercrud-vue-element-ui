@@ -21,3 +21,18 @@ export function throttle(fn,wait) {
         },wait)
     }
 }
+
+
+export function array_to_tree(arr, rootNodeCase = 0, pkField = 'id', parentField = 'pid', childrenFiled = 'children')
+{
+    arr = arr.map(node => {
+        node[childrenFiled] = arr.filter(item => {
+            return item[parentField] === node[pkField]
+        })
+        return node
+    })
+
+    return arr.filter(node => {
+        return node[parentField] === rootNodeCase
+    })
+}

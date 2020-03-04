@@ -1,167 +1,182 @@
 <template>
     <div>
-        <sp-card>
-            <el-button type="primary" @click="insert(rootRole)">添加角色</el-button>
-        </sp-card>
 
+        <sp-crud-template ref="crud" :url="url" :form="form" :where="where">
+            <template v-slot:table>
+                <el-table-column prop="name" label="角色名称"></el-table-column>
+            </template>
+            <template v-slot:form="{sForm}">
+                <el-form-item prop="name" label="角色名称">
+                    <el-input v-model="sForm.name"></el-input>
+                </el-form-item>
+            </template>
+            <template v-slot:table-action-before="{row}">
+                <el-button type="primary" plain size="small" @click="updateMenu(row)">菜单管理</el-button>
+                <el-button type="primary" plain size="small" @click="updateRule(row)">规则管理</el-button>
+            </template>
+        </sp-crud-template>
 
-        <el-table
-                :data="rolesTree"
-                row-key="id"
-                border
-                default-expand-all
-                :tree-props="{children: 'children'}">
-            <el-table-column prop="name" label="名称"></el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button v-if="scope.row.is_menu === 'yes'" type="success" size="mini" plain
-                               @click="insert(scope.row)">添加子角色
-                    </el-button>
-                    <el-button type="warning" size="mini" plain @click="update(scope.row,scope.$index)">编 辑
-                    </el-button>
-                    <el-button type="danger" size="mini" plain @click="_delete(scope.row)">删 除</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
+        <el-dialog
+                :modal-append-to-body="false"
+                :title="selectedRowName + '-菜单管理'"
+                :visible.sync="visualMenu"
+                v-if="visualMenu"
+        >
+            <sp-form
+                    @submit-success="$refs.crud.refreshTable"
+                    btn-position="center" :visual-clear-btn="false" :url="updateMenuUrl" method="put" :form="menuForm"
+                    label-width="0px">
+                <sp-card>
+                    <el-tree
+                            ref="ruleTree"
+                            node-key="path"
+                            :default-checked-keys="defaultCheckMenu"
+                            :data="menuList"
+                            show-checkbox
+                            @check-change="handleCheckChange"
+                    >
+                    </el-tree>
+                </sp-card>
+            </sp-form>
+        </el-dialog>
 
 
         <el-dialog
-                :title="formTitle"
-                :visible.sync="visualForm"
-                :append-to-body="true"
+                :modal-append-to-body="false"
+                :title="selectedRowName + '-规则管理'"
+                :visible.sync="visualRule"
+                v-if="visualRule"
         >
-            <rule-form v-if="visualForm" ref="form"></rule-form>
+            <sp-form
+                    @submit-success="$refs.crud.refreshTable"
+                    :submit-before="saveRuleBefore" btn-position="center" :visual-clear-btn="false"
+                    :url="updateRuleUrl" method="put" :form="ruleForm" label-width="0px">
+                <sp-card>
+                    <sp-card v-for="(rules,group) in ruleTreeCheck" :key="group">
+                        <div>
+                            <label style="font-weight: bold;color: #e6a23c">{{group}}</label>
+                            <span style="float: right">
+                                <el-link @click="selectAllRule(group,true)" type="primary" >全选</el-link>
+                                &nbsp;&nbsp;
+                                <el-link @click="selectAllRule(group,false)" type="info" >全不选</el-link>
+                            </span>
+                        </div>
+                        <el-checkbox  v-for="(rule,index) in rules" :key="index" v-model="rule.checked" @change="$forceUpdate()">{{rule.name}}</el-checkbox>
+                    </sp-card>
+                </sp-card>
+            </sp-form>
         </el-dialog>
     </div>
 </template>
 
 <script>
-    import RuleForm from "./Form";
+    import SpCrudTemplate from "../../../components/SpCrudTemplate";
+    import router from "../../../router/router";
+    import {array_to_tree} from "../../../common/common";
+    import SpForm from "../../../components/SpForm";
     import SpCard from "../../../components/SpCard";
 
+
     export default {
-        name: "Rule",
-        components: {SpCard, RuleForm},
+        name: "Index",
+        components: { SpCard, SpForm, SpCrudTemplate},
         data() {
             return {
-                rootRole: {},
-                formTitle: '',
-                visualForm: false,
-                filterText: '',
-                rolesTree: [],
-                url: '/admin/childrenRole',
+                where: {pid: 0},
+                url: '/admin/role',
+                form: {
+                    name: '',
+                },
+                updateMenuUrl: '',
+                menuForm: {
+                    menu: []
+                },
+                visualMenu: false,
+                updateRuleUrl: '',
+                ruleForm: {
+                    rule: []
+                },
+                ruleTree: {},
+                ruleTreeCheck: {},
+                visualRule: false,
+                defaultCheckMenu: [],
+                selectedRowName: ''
             }
         },
-        watch: {
-            filterText(val) {
-                this.$refs.tree.filter(val);
+        computed: {
+            menuList() {
+                let root = router.find(item => item.name === 'admin-app')
+                let menu = root.children.filter(node => {
+                    return node.menu
+                })
+
+                menu = array_to_tree(menu, 'root', 'name', 'parent')
+
+                return menu
             }
         },
         mounted() {
-            this.refreshTable()
+            this.$http.get('/admin/rule').then(
+                res => {
+                    this.ruleTree = res
+                }
+            )
         },
         methods: {
-            refreshTable() {
-                this.$http.get(this.url).then(
-                    res => {
-                        this.rootRole = res
-                        this.rolesTree = res.children
-                    }
-                )
+
+
+            selectAllRule(group,status) {
+                this.ruleTreeCheck[group] = this.ruleTreeCheck[group].map(rule => {
+                    rule.checked = status
+                    return rule
+                })
             },
 
-            filterMenuTree(treeList) {
+            updateMenu(row) {
+                this.selectedRowName = row.name
+                this.updateMenuUrl = `/admin/role/${row.id}/menu`
+                // 设置该角色已经拥有的菜单
+                this.defaultCheckMenu = row.menu instanceof Array ? row.menu.map(node => {
+                    return node.path
+                }) : []
+                this.visualMenu = true
+            },
 
-                let result = []
-                for (let tree of treeList) {
-                    if (tree.is_menu === 'yes') {
-                        let children = tree.children.length ? this.filterMenuTree(tree.children) : []
-                        if (children.length > 0) {
-                            result.push({
-                                id: tree.id,
-                                name: tree.name,
-                                is_menu: tree.is_menu,
-                                children
-                            })
-                        } else {
-                            result.push({
-                                id: tree.id,
-                                name: tree.name,
-                                is_menu: tree.is_menu,
-                            })
+            saveRuleBefore() {
+                this.ruleForm.rule = []
+                for (let group in this.ruleTreeCheck) {
+                    this.ruleTreeCheck[group].forEach(rule => {
+                        if (rule.checked) {
+                            this.ruleForm.rule.push({rule: rule.rule})
                         }
-
-                    }
+                    })
                 }
-
-                return result
             },
 
-            clickInsertRule(rule) {
-                this.form = rule
+            updateRule(row) {
+                this.selectedRowName = row.name
+                this.updateRuleUrl = `/admin/role/${row.id}/rule`
+                this.visualRule = true
+                // 设置该角色已拥有的规则
+                this.ruleTreeCheck = JSON.parse(JSON.stringify(this.ruleTree))
+                for (let group in this.ruleTreeCheck) {
+                    this.ruleTreeCheck[group] = this.ruleTreeCheck[group].map(rule => {
+                        rule.checked = row.rule.findIndex(item => item.rule === rule.rule) >= 0
+                        return rule
+                    })
+                }
             },
 
-            clickUpdateRule() {
-            },
 
-            formFinish() {
-                this.visualForm = false
-                this.refreshTable()
-                this.$refreshMenu()
-            },
-
-            _delete(row) {
-                this.$http.delete(this.url + '/' + row.id).then(
-                    () => {
-                        this.refreshTable()
-                        this.$refreshMenu()
-                    }
-                )
-            },
-
-            async insert(row) {
-                this.visualForm = true
-                this.formTitle = '新增'
-                this.$nextTick(() => {
-                    this.$refs.form.setPid(row.id).setRequest('post', this.url).setFinishCallback(this.formFinish)
+            handleCheckChange() {
+                this.menuForm.menu = this.$refs.tree.getCheckedNodes(false, true).map(node => {
+                    return {path: node.path}
                 })
             },
-
-            async update(row) {
-                this.visualForm = true
-                this.formTitle = '编辑'
-                this.$nextTick(async () => {
-                    let checkRule = await this.$http.get(this.url + '/' + row.id + '/rulesList')
-                    checkRule = checkRule.map(rule => rule.id)
-                    this.$refs.form.setRequest('put', this.url + '/' + row.id)
-                        .setFinishCallback(this.formFinish)
-                        .setPid(row.id).setForm(row).setCheckRule(checkRule)
-                })
-            },
-
-            filterNode(value, data) {
-                if (!value) return true;
-                return data.name.indexOf(value) !== -1;
-            }
         }
     }
 </script>
 
 <style scoped>
 
-    .tree {
-        width: 100%;
-        /*padding: 10px;*/
-        /*overflow-x: auto;*/
-        /*overflow-y: auto;*/
-    }
-
-    .custom-tree-node {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 14px;
-        padding-right: 8px;
-    }
 </style>

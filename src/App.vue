@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <router-view ></router-view>
+
+<!--    接口请求出现未登录弹出开窗体-->
     <el-dialog title="登录提醒" :visible.sync="visualLoginConfirm" >
       <div style="text-align: center">
         <i class="iconfont icon-baoqian" style="color: #409EFF;font-size: 64px"></i>

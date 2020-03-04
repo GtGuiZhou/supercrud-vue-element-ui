@@ -16,6 +16,11 @@ const sortRouter = (path, name = null, component = null) => {
 }
 
 
+/**
+ * menu: 表明这是一个菜单路由，这个路由就会出现在菜单栏上
+ * label: 出现在菜单上的名称
+ * parent: 他的上一级菜单,依据是定义路由的name属性,根节点为root
+ */
 export default [
     {
         name:'admin-app',
@@ -23,14 +28,14 @@ export default [
         path: '/admin',
         redirect: '/admin/welcome',
         children: [
-            {name:'rule',path:'/admin/rule',component: _import('container/rule/Index')},
-            {name:'role',path:'/admin/role',component: _import('container/role/Index')},
-            {name:'admin',path:'/admin/admin',component: _import('container/admin/Index')},
-            {name:'welcome',path:'/admin/welcome',component: _import('container/Welcome')},
+            {name:'role',path:'/admin/role',component: _import('container/role/Index'),label: '角色管理',menu: true,parent: "root"},
+            {name:'admin',path:'/admin/admin',component: _import('container/admin/Index'),label: '管理员管理',menu: true,parent: "root"},
+            {name:'welcome',path:'/admin/welcome',component: _import('container/Welcome'),label: '欢迎'},
             {name:'crud',path:'/admin/crud',component: _import('container/Crud')},
             {name:'test',path:'/admin/test',component: _import('container/Test')},
         ]
     },
+    {name: 'index',redirect: '/admin','path':'/'},
     sortRouter('login','login','Login'),
     sortRouter('*','404','404')
 ]

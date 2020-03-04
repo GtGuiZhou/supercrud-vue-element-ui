@@ -1,29 +1,30 @@
 <template>
     <div>
-        <sp-crud-template :url="url" :form="form">
+        <sp-crud-template :url="url" :form="form" >
             <template v-slot:table>
                 <el-table-column prop="username" label="用户名"></el-table-column>
-                <el-table-column prop="role.name" label="所属角色"></el-table-column>
-                <el-table-column prop="create_time" label="创建时间"></el-table-column>
+                <el-table-column align="center" label="超级管理员" >
+                    <sp-switch slot-scope="{row}" v-model="row.root" :url="`/admin/admin/${row.id}/root`"></sp-switch>
+                </el-table-column>
+                <el-table-column  label="角色">
+                    <template slot-scope="{row}">{{row.role ? row.role.name: ''}}</template>
+                </el-table-column>
             </template>
-            <template v-slot:form="{sForm}">
-                <el-form-item prop="role_id" label="所属角色">
-
-                    <el-tree style="height: 150px;overflow-y: auto" @node-click="node => treeNodeClick(node,sForm)"
-                             default-expand-all node-key="id" :data="roleList"
-                             :props="{children:'children',label:'name'}">
-                        <div class="custom-tree-node" slot-scope="{node,data}">
-                            <label>{{node.label}}</label>
-                            <el-radio style="float: right" :label="data.id" v-model="sForm.role_id">选中</el-radio>
-                        </div>
-                    </el-tree>
-
-                </el-form-item>
-                <el-form-item prop="username" label="用户名">
-                    <el-input v-model="sForm.username"></el-input>
-                </el-form-item>
+            <template v-slot:form="{sForm,mode}">
+                <el-form-item :prop="mode === 'insert'?'username':''"  label="用户名">
+                    <el-input v-model="sForm.username" :disabled="mode === 'update'"></el-input></el-form-item>
                 <el-form-item prop="password" label="密码">
                     <el-input v-model="sForm.password"></el-input>
+                </el-form-item>
+                <el-form-item prop="role_id" label="角色">
+                    <el-select v-model="sForm.role_id" filterable>
+                        <el-option
+                                v-for="item in roleArray"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
             </template>
         </sp-crud-template>
@@ -31,53 +32,38 @@
 </template>
 
 <script>
-    import table from '../../../mixin/admin/table'
-    import AdminForm from "./Form";
-    import SpCard from "../../../components/SpCard";
     import SpCrudTemplate from "../../../components/SpCrudTemplate";
+    import SpSwitch from "../../../components/SpSwitch";
 
     export default {
-        name: "Rule",
-        components: {SpCrudTemplate, SpCard, AdminForm},
-        mixins: [table],
+        name: "Index",
+        components: {SpSwitch, SpCrudTemplate},
         data() {
             return {
-                url: '/admin/childrenAdmin',
+                // where: {pid: 0},
+                url: '/admin/admin',
+                roleArray: [],
                 form: {
-                    username: '',
-                    password: '',
-                    role_id: ''
-                },
-                roleList: []
+                    name: ''
+                }
             }
         },
+        computed: {},
         mounted() {
-            this.refreshRoleList();
+            this.refreshRole()
         },
         methods: {
-            treeNodeClick(node,form){
-                // window.console.log(node)
-              form.role_id = node.id
-            },
-
-            refreshRoleList() {
-                this.$http.get('/admin/childrenrole').then(
+            refreshRole(){
+                this.$http.get('/admin/role?size=all').then(
                     res => {
-                        this.roleList = res.children
+                        this.roleArray = res.data
                     }
                 )
-            },
+            }
         }
     }
 </script>
 
 <style scoped>
-    .custom-tree-node {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 14px;
-        padding-right: 8px;
-    }
+
 </style>

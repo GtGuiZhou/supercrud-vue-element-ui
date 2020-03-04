@@ -55,7 +55,7 @@
                     if (valid) {
                         this.$http.post('/admin/login',this.form).then(
                             res => {
-                                localStorage.setItem('adminUsername',res.username)
+                                this.$store.commit('setAdmin',res)
                                 this.$router.replace('/admin')
                             }
                         ).catch(
