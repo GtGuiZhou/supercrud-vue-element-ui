@@ -10,6 +10,7 @@
                             icon="el-icon-circle-plus">
                         新增
                     </el-button>
+<!--                    todo: 批量删除-->
                     <slot name="toolbar-left"></slot>
                 </div>
                 <div v-if="visualSearch">

@@ -3,7 +3,6 @@
         <el-container style="width: 100%;height: 100%">
             <el-header class="header between">
                 <router-link to="/admin/welcome" class="title"><i class="el-icon-cold-drink"></i>SuperCrud</router-link>
-
                 <div class="toolbar">
                     <!--                    全屏-->
                     <i class="el-icon-full-screen" @click="toggleFullScreen"></i>
@@ -14,7 +13,12 @@
                             你好， {{$store.state.admin.username}}<i class="el-icon-arrow-down el-icon--right"></i>
                         </div>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item><span @click="logout">退出登录</span></el-dropdown-item>
+                            <el-dropdown-item>
+                                <router-link to="/admin/auth"><span >个人中心</span></router-link>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                <span @click="logout">退出登录</span>
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </div>

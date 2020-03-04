@@ -10,10 +10,11 @@
                     <template slot-scope="{row}">{{row.role ? row.role.name: ''}}</template>
                 </el-table-column>
             </template>
+<!--            todo: 密码修改-->
             <template v-slot:form="{sForm,mode}">
                 <el-form-item :prop="mode === 'insert'?'username':''"  label="用户名">
                     <el-input v-model="sForm.username" :disabled="mode === 'update'"></el-input></el-form-item>
-                <el-form-item prop="password" label="密码">
+                <el-form-item prop="password" label="密码" v-if="mode === 'insert'">
                     <el-input v-model="sForm.password"></el-input>
                 </el-form-item>
                 <el-form-item prop="role_id" label="角色">

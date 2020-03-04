@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import {Notification} from 'element-ui'
-import store from 'vuex'
 Vue.use(VueRouter)
 
 // 路由数据
@@ -12,7 +10,6 @@ const router = new VueRouter({
     routes
 })
 
-window.console.log(store)
 /**
  * 路由拦截
  */
