@@ -19,9 +19,9 @@ Vue.prototype.$http = axios
 Vue.prototype.$throttle = throttle
 Vue.prototype.$debounce = debounce
 
-
 if (sessionStorage.getItem("store") ) {
   store.replaceState(JSON.parse(sessionStorage.getItem("store")))
+  store.commit('initAuth')
 }
 
 //在页面刷新时将vuex里的信息保存到sessionStorage里

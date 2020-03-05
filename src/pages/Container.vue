@@ -86,7 +86,7 @@
             }
         },
         async mounted() {
-            this.haveMenu = await this.$http.get('/admin/menu')
+            this.adminMenu = await this.$http.get('/admin/menu')
         },
         methods: {
             async logout() {

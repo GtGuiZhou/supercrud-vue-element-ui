@@ -3,14 +3,16 @@
         <sp-crud-template :url="url" :form="form" >
             <template v-slot:table>
                 <el-table-column prop="username" label="用户名"></el-table-column>
-                <el-table-column align="center" label="超级管理员" >
-                    <sp-switch slot-scope="{row}" v-model="row.root" :url="`/admin/admin/${row.id}/root`"></sp-switch>
+                <el-table-column align="center" label="超级管理员" v-auth="['put-admin/admin/<id>/password']" >
+                    <sp-switch slot-scope="{row}" v-model="row.root" :url="`/admin/admin/${row.id}/root`" ></sp-switch>
                 </el-table-column>
                 <el-table-column  label="角色">
                     <template slot-scope="{row}">{{row.role ? row.role.name: ''}}</template>
                 </el-table-column>
             </template>
-<!--            todo: 密码修改-->
+            <template  v-slot:table-action-before="{row}">
+                <el-button   type="warning" plain size="mini" @click="updatePassword(row)" v-auth="['put-admin/admin/<id>/password']">修改密码</el-button>
+            </template>
             <template v-slot:form="{sForm,mode}">
                 <el-form-item :prop="mode === 'insert'?'username':''"  label="用户名">
                     <el-input v-model="sForm.username" :disabled="mode === 'update'"></el-input></el-form-item>
@@ -55,9 +57,23 @@
         },
         methods: {
             refreshRole(){
-                this.$http.get('/admin/role?size=all').then(
+                this.$http.get('/admin/role/all').then(
                     res => {
-                        this.roleArray = res.data
+                        this.roleArray = res
+                    }
+                )
+            },
+
+            updatePassword(row){
+                this.$prompt("请输入新密码",`修改${row.username}的密码`).then(
+                    ({value,action}) => {
+                        if (action === 'confirm'){
+                            this.$http.put(`/admin/admin/${row.id}/password`,{newPassword: value}).then(
+                                () => {
+                                    this.$notify.success('修改成功')
+                                }
+                            )
+                        }
                     }
                 )
             }

@@ -11,8 +11,8 @@
                 </el-form-item>
             </template>
             <template v-slot:table-action-before="{row}">
-                <el-button type="primary" plain size="small" @click="updateMenu(row)">菜单管理</el-button>
-                <el-button type="primary" plain size="small" @click="updateRule(row)">规则管理</el-button>
+                <el-button type="primary" plain size="small" @click="updateMenu(row)" >菜单管理</el-button>
+                <el-button type="primary" plain size="small" @click="updateRule(row)" >规则管理</el-button>
             </template>
         </sp-crud-template>
 
@@ -28,7 +28,7 @@
                     label-width="0px">
                 <sp-card>
                     <el-tree
-                            ref="ruleTree"
+                            ref="menuTree"
                             node-key="path"
                             :default-checked-keys="defaultCheckMenu"
                             :data="menuList"
@@ -169,7 +169,7 @@
 
 
             handleCheckChange() {
-                this.menuForm.menu = this.$refs.tree.getCheckedNodes(false, true).map(node => {
+                this.menuForm.menu = this.$refs.menuTree.getCheckedNodes(false, true).map(node => {
                     return {path: node.path}
                 })
             },

@@ -3,8 +3,9 @@
         <sp-card v-if="visualToolBar">
             <div class="between" style="flex-wrap: wrap;">
                 <div>
-                    <el-button plain icon="el-icon-refresh" @click="refreshTable" v-if="visualRefreshBtn"></el-button>
+                    <el-button  plain icon="el-icon-refresh" @click="refreshTable" v-if="visualRefreshBtn"></el-button>
                     <el-button
+                            v-auth="isAuth?['get-'+authUrl]:[]"
                             v-if="visualInsertBtn"
                             type="primary" plain @click="insert"
                             icon="el-icon-circle-plus">
@@ -32,13 +33,15 @@
                 v-loading="tableLoading"
         >
             <slot name="table"></slot>
-            <el-table-column label="操作">
+            <el-table-column label="操作" v-if="visualActionColumn">
                 <template slot-scope="scope">
                     <slot name="table-action-before" v-bind:row="scope.row" v-bind:$index="scope.$index" v-bind:store="scope.store" v-bind:column="scope.column"></slot>
                     <el-button v-if="visualTableUpdateBtn" type="warning" size="mini" plain
+                               v-auth="isAuth?['put-'+authUrl+'/<id>']:[]"
                                @click="update(scope.row.id,scope.row)">编 辑
                     </el-button>
                     <el-button v-if="visualTableDeleteBtn" type="danger" size="mini" plain
+                               v-auth="isAuth?['delete-'+authUrl+'/<id>']:[]"
                                @click="_delete(scope.row.id)">删 除
                     </el-button>
                     <slot name="table-action-after" v-bind:row="scope.row" v-bind:$index="scope.$index" v-bind:store="scope.store" v-bind:column="scope.column"></slot>
@@ -136,6 +139,10 @@
                 type: Boolean,
                 default: true
             },
+            visualActionColumn: {
+                type: Boolean,
+                default: true
+            },
             formWidth: {
                 type: String,
                 default: '700px'
@@ -143,6 +150,10 @@
             formLabelWidth: {
                 type: String,
                 default: '80px'
+            },
+            isAuth: {
+                type: Boolean,
+                default: true
             }
         },
         data() {
@@ -166,6 +177,12 @@
                 if (this.formMode === 'insert') return '添加'
                 if (this.formMode === 'update') return '更新'
                 return ''
+            },
+            authUrl(){
+                if (this.url.indexOf('/') === 0){
+                    return this.url.slice(1,this.url.length)
+                }
+                return  this.url
             }
         },
         created() {
