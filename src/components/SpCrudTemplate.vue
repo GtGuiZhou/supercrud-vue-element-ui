@@ -24,7 +24,7 @@
 
         <!--表格-->
         <el-table
-                style="margin-bottom: 10px"
+                style="margin-bottom: 10px;overflow-x: auto"
                 height="450px"
                 :data="tableData"
                 border

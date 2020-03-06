@@ -4,11 +4,12 @@ import router from './router'
 import store from './store'
 import axios from './common/axios'
 // import mock from './common/mock'
-import './assets/iconfront/iconfont.css'
+import './assets/iconfont/iconfont.css'
 import Viewer from 'v-viewer'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import {throttle,debounce} from "./common/common";
+import {throttle, debounce} from "./common/common";
+import auth from "./common/auth";
 
 Vue.use(ElementUI);
 Vue.use(Viewer);
@@ -19,18 +20,20 @@ Vue.prototype.$http = axios
 Vue.prototype.$throttle = throttle
 Vue.prototype.$debounce = debounce
 
-if (sessionStorage.getItem("store") ) {
-  store.replaceState(JSON.parse(sessionStorage.getItem("store")))
-  store.commit('initAuth')
+
+if (localStorage.getItem("store")) {
+    store.replaceState(JSON.parse(sessionStorage.getItem("store")))
+    store.commit('initAuth')
 }
 
 //在页面刷新时将vuex里的信息保存到sessionStorage里
-window.addEventListener("beforeunload",()=>{
-  sessionStorage.setItem("store",JSON.stringify(store.state))
+window.addEventListener("beforeunload", () => {
+    localStorage.setItem("store", JSON.stringify(store.state))
 })
+Vue.prototype.$auth = rules => auth(store.state.admin, rules)
 
 new Vue({
-  store,
-  router,
-  render: h => h(App),
+    store,
+    router,
+    render: h => h(App),
 }).$mount('#app')

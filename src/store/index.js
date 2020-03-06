@@ -1,5 +1,6 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
+import auth from "../common/auth";
 Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
@@ -13,15 +14,9 @@ export default new Vuex.Store({
         initAuth(state){
             Vue.directive('auth',{
               inserted: function (el,binding) {
-                    if (state.admin.root === 'yes') return
-                    if (!state.admin.role || !(binding.value instanceof Array)
-                        || !binding.value.every(item => state.admin.role.rule.find(rule => rule.rule === item))){
-                        if (!el.parentNode) {
-                            el.style.display = 'none'
-                        } else {
-                            el.parentNode.removeChild(el)
-                        }
-                    }
+                  if (!auth(state.admin,binding.value)){
+                      el.parentNode.removeChild(el) // 有些组件无法移除,例如el-table-column
+                  }
                 }
             })
         }

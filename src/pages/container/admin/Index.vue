@@ -3,7 +3,7 @@
         <sp-crud-template :url="url" :form="form" >
             <template v-slot:table>
                 <el-table-column prop="username" label="用户名"></el-table-column>
-                <el-table-column align="center" label="超级管理员" v-auth="['put-admin/admin/<id>/password']" >
+                <el-table-column align="center" label="超级管理员" v-if="$auth(['put-admin/admin/<id>/password'])" >
                     <sp-switch slot-scope="{row}" v-model="row.root" :url="`/admin/admin/${row.id}/root`" ></sp-switch>
                 </el-table-column>
                 <el-table-column  label="角色">

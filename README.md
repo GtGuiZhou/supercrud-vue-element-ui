@@ -9,6 +9,15 @@
 ```js
 {name:'role',path:'/admin/role',component: _import('container/role/Index'),label: '角色管理',menu: true,parent: "root"}
 ```
+### 权限管理
+有两种方式实现
+方式一
+在组件上使用`v-auth`指令鉴权,例如`v-auth="['put-admin/admin/<id>/password']"`,[]中的规则,当前登录管理员必须都拥有,如果没有该组件会被移除,比起方法二来方法一要简洁一点。
+方式二
+在组件上使用`v-if="$auth(rule)"`的方式鉴权,例如`v-if="$auth(['put-admin/admin/<id>/password'])"`,[]中的规则,当前登录管理员必须都拥有,如果没有$auth会返回false。
+这种方式主要解决有些组件使用`v-auth`指令无法移除的问题,例如el-table-column
+
+
 
 ### crud模板
 ```vue

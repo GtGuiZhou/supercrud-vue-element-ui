@@ -4,23 +4,12 @@
             <el-header class="header between">
                 <router-link to="/admin/welcome" class="title"><i class="el-icon-cold-drink"></i>SuperCrud</router-link>
                 <div class="toolbar">
+                    <router-link to="/admin/auth">你好， {{$store.state.admin.username}}</router-link>
                     <!--                    全屏-->
                     <i class="el-icon-full-screen" @click="toggleFullScreen"></i>
                     <!--                    日志-->
                     <i class="el-icon-tickets"></i>
-                    <el-dropdown style="cursor: pointer">
-                        <div>
-                            你好， {{$store.state.admin.username}}<i class="el-icon-arrow-down el-icon--right"></i>
-                        </div>
-                        <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item>
-                                <router-link to="/admin/auth"><span >个人中心</span></router-link>
-                            </el-dropdown-item>
-                            <el-dropdown-item>
-                                <span @click="logout">退出登录</span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </el-dropdown>
+                    <i class="iconfont icon-tuichu" @click="logout"></i>
                 </div>
             </el-header>
             <el-container style="position: relative">
@@ -71,7 +60,7 @@
             }
         },
         computed: {
-             menuList() {
+            menuList() {
                 let root = router.find(item => item.name === 'admin-app')
                 let menu = []
                 try {
@@ -79,7 +68,7 @@
                         return this.$store.state.admin.root === 'yes' || this.adminMenu.find(item => item.path === node.path)
                     })
                     menu = array_to_tree(menu, 'root', 'name', 'parent')
-                }catch (e) {
+                } catch (e) {
                     window.console.log(e)
                 }
                 return menu
@@ -153,5 +142,12 @@
         right: 0;
         top: 0;
         padding: 10px;
+    }
+
+    .avatar {
+        width: 27px;
+        height: 27px;
+        line-height: 27px;
+        border-radius: 20px;
     }
 </style>
