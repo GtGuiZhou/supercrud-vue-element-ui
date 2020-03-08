@@ -30,7 +30,8 @@ export default [
         children: [
             {name:'role',path:'/admin/role',component: _import('container/role/Index'),label: '角色管理',menu: true,parent: "root"},
             {name:'admin',path:'/admin/admin',component: _import('container/admin/Index'),label: '管理员管理',menu: true,parent: "root"},
-            {name:'welcome',path:'/admin/welcome',component: _import('container/Welcome'),label: '欢迎'},
+            {name:'user',path:'/admin/user',component: _import('container/user/Index'),label: '用户管理',menu: true,parent: "root"},
+            {name:'welcome',path:'/admin/welcome',component: _import('container/welcome/Index'),label: '欢迎'},
             {name:'auth',path:'/admin/auth',component: _import('container/auth/Index')},
         ]
     },

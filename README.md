@@ -6,9 +6,8 @@
 - label: 出现在菜单上的名称
 - parent: 他的上一级菜单,依据是定义路由的name属性,根节点为root
 #### 举例
-```js
-{name:'role',path:'/admin/role',component: _import('container/role/Index'),label: '角色管理',menu: true,parent: "root"}
-```
+`{name:'role',path:'/admin/role',component: _import('container/role/Index'),label: '角色管理',menu: true,parent: "root"}`
+
 ### 权限管理
 有两种方式实现
 方式一

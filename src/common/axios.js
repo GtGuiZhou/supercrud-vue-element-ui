@@ -7,7 +7,7 @@ const urlParams = 'XDEBUG_SESSION_START=15833'
 // 创建一个 axios 实例
 const service = axios.create({
     baseURL: process.env.VUE_APP_BASEURL,
-    timeout: 5000 // 请求超时时间
+    timeout: 15000 // 请求超时时间
 })
 
 // 添加请求拦截器
@@ -46,6 +46,11 @@ service.interceptors.response.use(function (response) {
     switch (status) {
         case 500:
             service.errMsg("服务器内部错误")
+            break;
+        case 422:
+            if (error.response.data instanceof String){
+                service.errMsg(error.response.data)
+            }
             break;
         case 400:
             service.errMsg(error.response.data.message)

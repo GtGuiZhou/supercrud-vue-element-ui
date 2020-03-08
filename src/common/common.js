@@ -41,10 +41,26 @@ export function array_group_count(array, groupField) {
         if (map[item[groupField]] === undefined) map[item[groupField]] = 0
         map[item[groupField]]++
     }
-    return  Object.keys(map).map(key => {
+    return Object.keys(map).map(key => {
         let res = {}
         res[groupField] = key
         res.count = map[key]
         return res
     })
+}
+
+
+export function number_to_simple_chinese(value) {
+    const unit = ['千','万', '十万', '百万', '千万', '亿','十亿','百亿','千亿','兆']
+    if(value < 1000) {
+        return value
+    }
+    const transfer = (scale, index) => {
+        if (value < (scale * 100) || index === unit.length - 1) {
+            return (value / scale).toFixed(2) + unit[index]
+        } else {
+            return transfer(scale * 10, index + 1)
+        }
+    }
+    return transfer(1000, 0)
 }

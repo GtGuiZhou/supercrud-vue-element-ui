@@ -1,7 +1,8 @@
 <template>
-    <full-screen>
-        <el-container style="width: 100%;height: 100%">
-            <el-header class="header between">
+    <full-screen v-loading="!$store.state.admin"     element-loading-text="初始化中请稍后">
+        <full-parent v-if="$store.state.admin">
+            <header class="between">
+                <!--                todo: 在这里加入导航，参考https://auauz.net/system/role-->
                 <router-link to="/admin/welcome" class="title"><i class="el-icon-cold-drink"></i>SuperCrud</router-link>
                 <div class="toolbar">
                     <router-link to="/admin/auth">你好， {{$store.state.admin.username}}</router-link>
@@ -11,38 +12,39 @@
                     <i class="el-icon-tickets"></i>
                     <i class="iconfont icon-tuichu" @click="logout"></i>
                 </div>
-            </el-header>
-            <el-container style="position: relative">
-                <el-aside width="200px" class="aside" style="border-right: solid 1px #e6e6e6;">
-                    <el-menu :default-active="$route.path" style="border: 0">
-                        <template v-for="menu in menuList">
-                            <el-submenu :index="menu.path" v-if="menu.children && menu.children.length > 0"
-                                        :key="menu.path">
-                                <template slot="title">
-                                    <i :class="menu.icon" v-if="menu.icon"></i>
-                                    <span>{{menu.label}}</span>
-                                </template>
-                                <el-menu-item v-for="subMenu in menu.children" :index="subMenu.path"
-                                              :key="subMenu.path" @click="$router.push(subMenu.path)">
-                                    <i :class="subMenu.icon" v-if="subMenu.icon"></i>
-                                    <span>{{subMenu.label}}</span>
-                                </el-menu-item>
-                            </el-submenu>
-                            <el-menu-item :index="menu.path" :key="menu.path" v-else
-                                          @click="$router.push(menu.path)">
+            </header>
+            <aside>
+                <el-menu :default-active="$route.path" style="border: 0;width: 100%">
+                    <template v-for="menu in menuList">
+                        <el-submenu :index="menu.path" v-if="menu.children && menu.children.length > 0"
+                                    :key="menu.path">
+                            <template slot="title">
                                 <i :class="menu.icon" v-if="menu.icon"></i>
-                                {{menu.label}}
+                                <span>{{menu.label}}</span>
+                            </template>
+                            <el-menu-item v-for="subMenu in menu.children" :index="subMenu.path"
+                                          :key="subMenu.path" @click="$router.push(subMenu.path)">
+                                <i :class="subMenu.icon" v-if="subMenu.icon"></i>
+                                <span>{{subMenu.label}}</span>
                             </el-menu-item>
-                        </template>
-                    </el-menu>
-                </el-aside>
+                        </el-submenu>
+                        <el-menu-item :index="menu.path" :key="menu.path" v-else
+                                      @click="$router.push(menu.path)">
+                            <i :class="menu.icon" v-if="menu.icon"></i>
+                            {{menu.label}}
+                        </el-menu-item>
+                    </template>
+                </el-menu>
+            </aside>
 
+            <main>
+                <router-view></router-view>
+            </main>
 
-                <el-main class="main">
-                    <router-view></router-view>
-                </el-main>
-            </el-container>
-        </el-container>
+            <footer >
+                <small> Copyright © 2019-2020 GtGuiZhou. All Rights Reserved. GtGuiZhou 版权所有 </small>
+            </footer>
+        </full-parent>
     </full-screen>
 </template>
 
@@ -50,10 +52,12 @@
     import FullScreen from "../components/FullScreen";
     import router from '../router/router'
     import {array_to_tree} from "../common/common";
+    import SpCard from "../components/SpCard";
+    import FullParent from "../components/FullParent";
 
     export default {
         name: "Container",
-        components: {FullScreen},
+        components: {FullParent, SpCard, FullScreen},
         data() {
             return {
                 adminMenu: [],
@@ -74,8 +78,18 @@
                 return menu
             }
         },
-        async mounted() {
-            this.adminMenu = await this.$http.get('/admin/menu')
+        created() {
+            // 初始化管理员
+            this.$http.get('/admin').then(
+                res => {
+                    this.$store.commit('setAdmin', res)
+                    this.$http.get('/admin/menu').then(
+                        res => {
+                            this.adminMenu = res
+                        }
+                    )
+                }
+            )
         },
         methods: {
             async logout() {
@@ -112,11 +126,19 @@
 </script>
 
 <style scoped>
-    .header {
-        border-bottom: 1px solid #e6e6e6;
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        border: 1px solid #e6e6e6;
+        display: flex;
+        align-items: center;
+        background-color: white;
     }
 
-    .header .title {
+    header .title {
         color: black;
         padding: 10px;
         font-weight: bold;
@@ -124,24 +146,56 @@
         text-decoration: none;
     }
 
-    .header .toolbar {
+    header .toolbar {
         padding: 10px;
     }
 
-    .header .toolbar i {
+    header .toolbar i {
         cursor: pointer;
         padding: 0 10px;
         font-weight: bold;
     }
 
+    aside {
+        position: fixed;
+        top: 50px;
+        left: 0;
+        bottom: 0px;
+        width: 200px;
+        border: 1px solid #e6e6e6;
+        background-color: white;
+    }
 
-    .main {
-        position: absolute;
+
+    main {
+        position: fixed;
+        top: 50px;
         left: 200px;
-        bottom: 0;
         right: 0;
-        top: 0;
+        bottom: 50px;
         padding: 10px;
+        background-color: white;
+        border: 1px solid #e6e6e6;
+        overflow-y: auto;
+    }
+
+    footer {
+        z-index: 333;
+        padding: 10px;
+        position: fixed;
+        left: 200px;
+        right: 0;
+        bottom: 0;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        background-color: white;
+        box-sizing: border-box;
+        border: 1px solid #e6e6e6;
+    }
+
+    footer small {
+        color: gray;
     }
 
     .avatar {

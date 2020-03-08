@@ -21,7 +21,6 @@
                 </div>
             </el-card>
         </el-form>
-
         <div class="footer">
             <!--            Power by <a href="http://www.guotao.pro">GtGuiZhou</a>-->
         </div>
@@ -54,8 +53,7 @@
                 this.$refs.form.validate((valid) => {
                     if (valid) {
                         this.$http.post('/admin/login',this.form).then(
-                            res => {
-                                this.$store.commit('setAdmin',res)
+                            () => {
                                 this.$router.replace('/admin')
                             }
                         ).catch(

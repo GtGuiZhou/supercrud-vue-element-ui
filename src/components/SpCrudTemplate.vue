@@ -33,7 +33,7 @@
                 v-loading="tableLoading"
         >
             <slot name="table"></slot>
-            <el-table-column label="操作" v-if="visualActionColumn">
+            <el-table-column label="操作" v-if="visualActionColumn" :width="tableActionWidth">
                 <template slot-scope="scope">
                     <slot name="table-action-before" v-bind:row="scope.row" v-bind:$index="scope.$index" v-bind:store="scope.store" v-bind:column="scope.column"></slot>
                     <el-button v-if="visualTableUpdateBtn" type="warning" size="mini" plain
@@ -142,6 +142,10 @@
             visualActionColumn: {
                 type: Boolean,
                 default: true
+            },
+            tableActionWidth: {
+                type: String,
+                default: '200px'
             },
             formWidth: {
                 type: String,

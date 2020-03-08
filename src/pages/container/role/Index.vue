@@ -1,7 +1,6 @@
 <template>
     <div>
-
-        <sp-crud-template ref="crud" :url="url" :form="form" :where="where">
+        <sp-crud-template ref="crud" :url="url" :form="form" :where="where" table-action-width="340px">
             <template v-slot:table>
                 <el-table-column prop="name" label="角色名称"></el-table-column>
             </template>

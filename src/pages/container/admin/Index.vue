@@ -1,6 +1,6 @@
 <template>
     <div>
-        <sp-crud-template :url="url" :form="form" >
+        <sp-crud-template :url="url" :form="form" table-action-width="400px">
             <template v-slot:table>
                 <el-table-column prop="username" label="用户名"></el-table-column>
                 <el-table-column align="center" label="超级管理员" v-if="$auth(['put-admin/admin/<id>/password'])" >
@@ -11,6 +11,7 @@
                 </el-table-column>
             </template>
             <template  v-slot:table-action-before="{row}">
+                <el-button   type="success" plain size="mini" @click="loginAdmin(row)" v-auth="['get-admin/login/<id>']">登录管理员</el-button>
                 <el-button   type="warning" plain size="mini" @click="updatePassword(row)" v-auth="['put-admin/admin/<id>/password']">修改密码</el-button>
             </template>
             <template v-slot:form="{sForm,mode}">
@@ -56,6 +57,15 @@
             this.refreshRole()
         },
         methods: {
+            loginAdmin(row){
+                this.$http.get(`/admin/admin/${row.id}/login`).then(
+                    () => {
+                        this.$router.replace('/admin/welcome')
+                        window.location.reload()
+                    }
+                )
+            },
+
             refreshRole(){
                 this.$http.get('/admin/role/all').then(
                     res => {

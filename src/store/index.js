@@ -4,7 +4,7 @@ import auth from "../common/auth";
 Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
-        admin: {},
+        admin: null,
     },
     mutations: {
         setAdmin(state,admin){
@@ -14,11 +14,12 @@ export default new Vuex.Store({
         initAuth(state){
             Vue.directive('auth',{
               inserted: function (el,binding) {
-                  if (!auth(state.admin,binding.value)){
+                  if (!auth(state,binding.value)){
                       el.parentNode.removeChild(el) // 有些组件无法移除,例如el-table-column
                   }
-                }
-            })
+                },
+            }
+            )
         }
     },
 })
