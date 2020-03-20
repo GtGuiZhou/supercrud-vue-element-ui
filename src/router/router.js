@@ -28,6 +28,7 @@ export default [
         path: '/admin',
         redirect: '/admin/welcome',
         children: [
+            {name:'config',path:'/admin/config',component: _import('container/config/Index'),label: '配置',menu: true,parent: 'root'},
             {name:'role',path:'/admin/role',component: _import('container/role/Index'),label: '角色管理',menu: true,parent: "root"},
             {name:'admin',path:'/admin/admin',component: _import('container/admin/Index'),label: '管理员管理',menu: true,parent: "root"},
             {name:'user',path:'/admin/user',component: _import('container/user/Index'),label: '用户管理',menu: true,parent: "root"},
