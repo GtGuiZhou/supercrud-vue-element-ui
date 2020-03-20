@@ -1,6 +1,6 @@
 <template>
-    <div style="padding: 8px">
-        <div style="background-color: white;padding: 8px;">
+    <div >
+        <sp-card>
             <div class="between" style="flex-wrap: wrap;">
                 <div>
                     <el-button plain icon="el-icon-refresh" @click="refreshConfig"></el-button>
@@ -9,40 +9,36 @@
                     </el-button>
                 </div>
             </div>
-        </div>
+        </sp-card>
 
+        <sp-card >
+            <el-tabs value="wechat" v-if="form">
+                <el-tab-pane name="site" label="站点配置">
+                    <site-config v-model="form.site"></site-config>
+                </el-tab-pane>
+                <el-tab-pane name="wechat" label="微信配置">
+                    <wechat-config v-model="form.wechat"></wechat-config>
+                </el-tab-pane>
+            </el-tabs>
+            <div style="text-align: center;margin-top: 50px" v-else>
+                <small>抱歉,配置加载失败</small>
+            </div>
+        </sp-card>
 
-        <el-form label-width="70px" style="background-color: #fff;margin-top: 8px;padding: 8px">
-            <el-form-item prop="name" label="站点名称">
-                <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item prop="name" label="备案号">
-                <el-input v-model="form.beian"></el-input>
-            </el-form-item>
-            <el-form-item prop="fee" label="logo">
-                <sp-upload-image image-width="300px" image-height="150px" v-model="form.logo"></sp-upload-image>
-            </el-form-item>
-        </el-form>
     </div>
 </template>
 
 <script>
-    import SpUploadImage from "../../../components/SpUploadImage";
+    import SiteConfig from "./SiteConfig";
+    import SpCard from "../../../components/SpCard";
+    import WechatConfig from "./WechatConfig";
 
     export default {
         name: "Index",
-        components: {SpUploadImage},
+        components: {WechatConfig, SpCard, SiteConfig},
         data() {
             return {
-                form: {
-                    name: '',
-                    logo: '',
-                    qq: '',
-                    email: '',
-                    sina_url: '',
-                    sina_name: '',
-                    qq_group: []
-                }
+                form: null
             }
         },
         computed: {},

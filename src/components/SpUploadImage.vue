@@ -18,7 +18,7 @@
             },
             value: {
                 type: String,
-                required: true
+                default: ''
             },
             imageWidth: {
                 type: String,

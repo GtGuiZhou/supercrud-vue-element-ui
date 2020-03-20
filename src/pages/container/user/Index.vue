@@ -4,6 +4,10 @@
                           :visual-table-update-btn="false" :visual-insert-btn="false" :visual-table-delete-btn="false"
         >
             <template v-slot:table>
+                <el-table-column prop="avatar" label="头像" width="72">
+                    <el-avatar :size="50" shape="square" :src="row.avatar" slot-scope="{row}"></el-avatar>
+                </el-table-column>
+                <el-table-column prop="nickname" label="昵称"></el-table-column>
                 <el-table-column prop="username" label="用户名"></el-table-column>
                 <el-table-column prop="email" label="邮箱"></el-table-column>
                 <el-table-column prop="phone" label="手机号"></el-table-column>
