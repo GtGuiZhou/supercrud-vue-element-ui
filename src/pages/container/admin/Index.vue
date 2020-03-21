@@ -1,6 +1,8 @@
 <template>
     <div>
-        <sp-crud-template :url="url" :form="form" table-action-width="400px">
+        <sp-crud-template
+                :visual-import="false" :visual-export="false" :visual-export-all="false"
+                :url="url" :form="form" table-action-width="400px">
             <template v-slot:table>
                 <el-table-column prop="username" label="用户名"></el-table-column>
                 <el-table-column align="center" label="超级管理员" v-if="$auth(['put-admin/admin/<id>/root'])" >

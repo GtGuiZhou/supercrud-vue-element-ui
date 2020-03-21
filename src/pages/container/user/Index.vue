@@ -4,25 +4,25 @@
             <el-col :span="6" >
                 <div class="new-add">
                     <label>总用户数</label>
-                    <span>21</span>
+                    <span>{{preview.total}}</span>
                 </div>
             </el-col>
             <el-col :span="6" >
                 <div class="new-add">
                     <label>本月新增</label>
-                    <span>21</span>
+                    <span>{{preview.month_total}}</span>
                 </div>
             </el-col>
             <el-col :span="6" >
                 <div class="new-add">
                     <label>本周新增</label>
-                    <span>21</span>
+                    <span>{{preview.week_total}}</span>
                 </div>
             </el-col>
             <el-col :span="6" >
                 <div class="new-add">
                     <label>今日新增</label>
-                    <span>21</span>
+                    <span>{{preview.day_total}}</span>
                 </div>
             </el-col>
         </el-row>
@@ -71,10 +71,23 @@
                 roleArray: [],
                 form: {
                     name: ''
+                },
+                preview: {
+                    total:0,
+                    month_total: 0,
+                    week_total: 0,
+                    day_total: 0
                 }
             }
         },
         computed: {},
+        created() {
+            this.$http.get('/admin/user/preview').then(
+                res => {
+                    this.preview = res
+                }
+            )
+        },
         methods: {
             updatePassword(row) {
                 this.$prompt("请输入新密码", `修改${row.username}的密码`).then(
