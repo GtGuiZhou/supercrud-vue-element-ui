@@ -3,16 +3,16 @@
         <sp-card>
             <div class="between" style="flex-wrap: wrap;">
                 <div>
-                    <el-button plain icon="el-icon-refresh" @click="refreshConfig"></el-button>
-                    <el-button type="primary" plain @click="save"
-                               icon="el-icon-circle-plus">保存配置
+                    <el-button size="mini" icon="el-icon-refresh" @click="refreshConfig"></el-button>
+                    <el-button type="primary" size="mini" @click="save"
+                               icon="el-icon-plus">保存配置
                     </el-button>
                 </div>
             </div>
         </sp-card>
 
         <sp-card >
-            <el-tabs value="wechat" v-if="form">
+            <el-tabs value="site" v-if="form">
                 <el-tab-pane name="site" label="站点配置">
                     <site-config v-model="form.site"></site-config>
                 </el-tab-pane>

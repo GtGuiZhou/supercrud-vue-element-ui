@@ -1,6 +1,33 @@
 <template>
     <div>
+        <el-row :gutter="20">
+            <el-col :span="6" >
+                <div class="new-add">
+                    <label>总用户数</label>
+                    <span>21</span>
+                </div>
+            </el-col>
+            <el-col :span="6" >
+                <div class="new-add">
+                    <label>本月新增</label>
+                    <span>21</span>
+                </div>
+            </el-col>
+            <el-col :span="6" >
+                <div class="new-add">
+                    <label>本周新增</label>
+                    <span>21</span>
+                </div>
+            </el-col>
+            <el-col :span="6" >
+                <div class="new-add">
+                    <label>今日新增</label>
+                    <span>21</span>
+                </div>
+            </el-col>
+        </el-row>
         <sp-crud-template :url="url" :form="form"
+                          :visual-import="true"
                           :visual-table-update-btn="false" :visual-insert-btn="false" :visual-table-delete-btn="false"
         >
             <template v-slot:table>
@@ -67,5 +94,14 @@
 </script>
 
 <style scoped>
+    .new-add{
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #F2F6FC;
+    }
 
+    .new-add span{
+        color: #F56C6C;
+        float: right;
+    }
 </style>

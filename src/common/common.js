@@ -64,3 +64,23 @@ export function number_to_simple_chinese(value) {
     }
     return transfer(1000, 0)
 }
+
+export function upload_file(callback,multiple = '',accept='') {
+    let node = document.createElement('input')
+    node.type = 'file'
+    node.style.display = 'none'
+    node.accept = accept
+    node.multiple = multiple
+    let body = document.getElementsByTagName('body')[0]
+    body.appendChild(node)
+    node.click()
+    node.onchange = e => {
+        let files = e.currentTarget.files
+        if(multiple !== 'multiple'){
+            callback(files[0])
+        } else {
+            callback(files)
+        }
+        body.removeChild(node)
+    }
+}

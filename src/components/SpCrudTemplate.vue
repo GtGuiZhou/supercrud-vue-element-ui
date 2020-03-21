@@ -3,21 +3,48 @@
         <sp-card v-if="visualToolBar">
             <div class="between" style="flex-wrap: wrap;">
                 <div>
-                    <el-button  plain icon="el-icon-refresh" @click="refreshTable" v-if="visualRefreshBtn"></el-button>
+                    <el-button size="mini" icon="el-icon-refresh" @click="refreshTable"
+                               v-if="visualRefreshBtn"></el-button>
                     <el-button
                             v-auth="isAuth?['get-'+authUrl]:[]"
                             v-if="visualInsertBtn"
-                            type="primary" plain @click="insert"
-                            icon="el-icon-circle-plus">
+                            type="primary" @click="insert"
+                            size="mini"
+                            icon="el-icon-plus">
                         新增
                     </el-button>
-<!--                    todo: 批量删除-->
+                    <el-button
+                            v-auth="isAuth?['post-'+authUrl+'/import']:[]"
+                            v-if="visualImport"
+                            type="danger" @click="importData"
+                            size="mini"
+                            icon="el-icon-upload">
+                        导入
+                    </el-button>
+                    <el-button
+                            v-auth="isAuth?['get-'+authUrl+'/export']:[]"
+                            v-if="visualExport"
+                            type="warning" @click="exportData"
+                            size="mini"
+                            icon="el-icon-download">
+                        导出当前
+                    </el-button>
+                    <el-button
+                            v-auth="isAuth?['get-'+authUrl+'/export']:[]"
+                            v-if="visualExportAll"
+                            type="info" @click="exportDataAll"
+                            size="mini"
+                            icon="el-icon-download">
+                        导出所有
+                    </el-button>
+
                     <slot name="toolbar-left"></slot>
                 </div>
                 <div v-if="visualSearch">
                     <slot name="toolbar-right"></slot>
-                    <el-input style="width: 250px" v-model="searchContent" placeholder="请输入搜索内容" @keypress.enter.native="search"></el-input>
-                    <el-button type="success" plain icon="el-icon-search" @click="search">搜索</el-button>
+                    <el-input style="width: 250px" v-model="searchContent" placeholder="请输入搜索内容"
+                              @keypress.enter.native="search" size="mini"></el-input>
+                    <el-button type="success" size="mini" icon="el-icon-search" @click="search">搜索</el-button>
                 </div>
             </div>
         </sp-card>
@@ -35,7 +62,8 @@
             <slot name="table"></slot>
             <el-table-column label="操作" v-if="visualActionColumn" :width="tableActionWidth">
                 <template slot-scope="scope">
-                    <slot name="table-action-before" v-bind:row="scope.row" v-bind:$index="scope.$index" v-bind:store="scope.store" v-bind:column="scope.column"></slot>
+                    <slot name="table-action-before" v-bind:row="scope.row" v-bind:$index="scope.$index"
+                          v-bind:store="scope.store" v-bind:column="scope.column"></slot>
                     <el-button v-if="visualTableUpdateBtn" type="warning" size="mini" plain
                                v-auth="isAuth?['put-'+authUrl+'/<id>']:[]"
                                @click="update(scope.row.id,scope.row)">编 辑
@@ -44,7 +72,8 @@
                                v-auth="isAuth?['delete-'+authUrl+'/<id>']:[]"
                                @click="_delete(scope.row.id)">删 除
                     </el-button>
-                    <slot name="table-action-after" v-bind:row="scope.row" v-bind:$index="scope.$index" v-bind:store="scope.store" v-bind:column="scope.column"></slot>
+                    <slot name="table-action-after" v-bind:row="scope.row" v-bind:$index="scope.$index"
+                          v-bind:store="scope.store" v-bind:column="scope.column"></slot>
                 </template>
             </el-table-column>
         </el-table>
@@ -86,6 +115,7 @@
 
 <script>
     import SpCard from "./SpCard";
+    import {upload_file} from "../common/common";
 
     export default {
         name: "SpCrudTemplate",
@@ -101,7 +131,7 @@
             },
             pk: {
                 type: String,
-                default: 'pk'
+                default: 'id'
             },
             where: {
                 type: Object,
@@ -143,6 +173,18 @@
                 type: Boolean,
                 default: true
             },
+            visualImport: {
+                type: Boolean,
+                default: false
+            },
+            visualExport: {
+                type: Boolean,
+                default: true
+            },
+            visualExportAll: {
+                type: Boolean,
+                default: true
+            },
             tableActionWidth: {
                 type: String,
                 default: '200px'
@@ -158,7 +200,7 @@
             isAuth: {
                 type: Boolean,
                 default: true
-            }
+            },
         },
         data() {
             return {
@@ -177,16 +219,20 @@
             }
         },
         computed: {
+            indexCase() {
+                let where = JSON.stringify(this.where)
+                return `?page=${this.pageIndex}&size=${this.pageSize}&search=${this.searchContent}&where=${where}`
+            },
             formTitle() {
                 if (this.formMode === 'insert') return '添加'
                 if (this.formMode === 'update') return '更新'
                 return ''
             },
-            authUrl(){
-                if (this.url.indexOf('/') === 0){
-                    return this.url.slice(1,this.url.length)
+            authUrl() {
+                if (this.url.indexOf('/') === 0) {
+                    return this.url.slice(1, this.url.length)
                 }
-                return  this.url
+                return this.url
             }
         },
         created() {
@@ -203,8 +249,7 @@
 
             async refreshTable() {
                 this.tableLoading = true
-                let where = JSON.stringify(this.where)
-                this.$http.get(this.url + `?page=${this.pageIndex}&size=${this.pageSize}&search=${this.searchContent}&where=${where}`).then(
+                this.$http.get(this.url + this.indexCase).then(
                     res => {
                         this.tableLoading = false
                         this.tableData = res.data
@@ -268,7 +313,20 @@
             },
             search() {
                 this.refreshTable()
-            }
+            },
+            importData() {
+                upload_file(file => {
+                    let form = new FormData()
+                    form.append('file',file)
+                    this.$http.post(this.url + '/import',form).then(() => this.$notify.success('导入成功'))
+                })
+            },
+            exportData() {
+                window.open(this.url + '/export' + this.indexCase)
+            },
+            exportDataAll() {
+                window.open(this.url + '/export?size=all')
+            },
         }
     }
 </script>

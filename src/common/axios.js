@@ -47,11 +47,6 @@ service.interceptors.response.use(function (response) {
         case 500:
             service.errMsg("服务器内部错误")
             break;
-        case 422:
-            if (error.response.data instanceof String){
-                service.errMsg(error.response.data)
-            }
-            break;
         case 400:
             service.errMsg(error.response.data.message)
             break;

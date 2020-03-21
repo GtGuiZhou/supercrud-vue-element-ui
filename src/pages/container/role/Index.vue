@@ -50,7 +50,7 @@
                     @submit-success="$refs.crud.refreshTable"
                     :submit-before="saveRuleBefore" btn-position="center" :visual-clear-btn="false"
                     :url="updateRuleUrl" method="put" :form="ruleForm" label-width="0px">
-                <sp-card>
+                <sp-card style="max-height: 500px;overflow-y: auto">
                     <sp-card v-for="(rules,group) in ruleTreeCheck" :key="group">
                         <div>
                             <label style="font-weight: bold;color: #e6a23c">{{group}}</label>
