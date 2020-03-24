@@ -22,16 +22,6 @@
         name: "SiteConfig",
         mixins: [configMixin],
         components: { SpUploadImage},
-        props: {
-            value: {
-                type: Object,
-                default: () => {return {
-                    name: '',
-                    beian: '',
-                    logo: ''
-                }}
-            }
-        },
         data() {
             return {}
         },

@@ -180,7 +180,7 @@
     }
 
     footer {
-        z-index: 333;
+        z-index: -1;
         padding: 10px;
         position: fixed;
         left: 200px;

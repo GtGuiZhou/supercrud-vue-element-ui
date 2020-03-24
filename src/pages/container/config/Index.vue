@@ -1,5 +1,5 @@
 <template>
-    <div >
+    <div>
         <sp-card>
             <div class="between" style="flex-wrap: wrap;">
                 <div>
@@ -12,17 +12,20 @@
         </sp-card>
 
         <sp-card >
-            <el-tabs value="site" v-if="form">
-                <el-tab-pane name="site" label="站点配置">
+            <el-tabs value="site" >
+                <el-tab-pane name="site" label="站点配置" class="config-pane">
                     <site-config v-model="form.site"></site-config>
                 </el-tab-pane>
                 <el-tab-pane name="wechat" label="微信配置">
                     <wechat-config v-model="form.wechat"></wechat-config>
                 </el-tab-pane>
+                <el-tab-pane name="cloudstore" label="云存储">
+                    <cloud-store-config v-model="form.cloudstore.driver"></cloud-store-config>
+                </el-tab-pane>
+                <el-tab-pane name="pay" label="支付">
+                    <pay-config v-model="form.pay"></pay-config>
+                </el-tab-pane>
             </el-tabs>
-            <div style="text-align: center;margin-top: 50px" v-else>
-                <small>抱歉,配置加载失败</small>
-            </div>
         </sp-card>
 
     </div>
@@ -32,13 +35,55 @@
     import SiteConfig from "./SiteConfig";
     import SpCard from "../../../components/SpCard";
     import WechatConfig from "./WechatConfig";
+    import CloudStoreConfig from "./CloudStoreConfig";
+    import {deep_merge} from "../../../common/common";
+    import PayConfig from "./PayConfig";
 
     export default {
         name: "Index",
-        components: {WechatConfig, SpCard, SiteConfig},
+        components: {PayConfig, CloudStoreConfig, WechatConfig, SpCard, SiteConfig},
         data() {
             return {
-                form: null
+                form: {
+                    site: {
+                        name: '',
+                        logo: '',
+                        beian: ''
+                    },
+                    cloudstore:{
+                        driver:{
+                            aliyun: {
+                                region: '',
+                                bucket: '',
+                                schema: '',
+                                secret_id: '',
+                                secret_key: ''
+                            },
+                            qcloud: {
+                                region: '',
+                                bucket: '',
+                                schema: '',
+                                secret_id: '',
+                                secret_key: ''
+                            },
+                        }
+                    },
+                    wechat: {
+                        official: {
+                            app_id: '',
+                            secret: '',
+                        }
+                    },
+                    pay: {
+                        wechat: {
+                            app_id: '',
+                            mch_id: '',
+                            key: '',
+                            cert_path: '',
+                            key_path: '',
+                        },
+                    }
+                }
             }
         },
         computed: {},
@@ -46,16 +91,10 @@
             this.refreshConfig()
         },
         methods: {
-            insertQQGroup() {
-                this.form.qq_group.push({name: '', url: ''})
-            },
-            deleteQQGroup(index) {
-                this.form.qq_group.splice(index, 1)
-            },
             refreshConfig() {
                 this.$http.get('/admin/config').then(
                     res => {
-                        this.form = res
+                        this.form = deep_merge(this.form,res)
                     }
                 )
             },
@@ -73,5 +112,8 @@
 </script>
 
 <style scoped>
-
+    .config-pane{
+        overflow-y: auto;
+        height: 300px
+    }
 </style>
